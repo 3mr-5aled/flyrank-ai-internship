@@ -2,20 +2,20 @@
 
 This repository contains assignment work for the Flyrank AI internship, organized into two tracks:
 
-- `AI Fluency`
-- `Backend AI Engineering`
+- `AI-Fluency`
+- `Backend-AI-Engineering`
 
 Each track is split into weekly folders so the work stays easy to review and compare over time. Week 1 currently contains written exercises, prompts, summaries, and supporting screenshots.
 
 ## Repository Layout
 
 ```text
-AI Fluency/
+AI-Fluency/
   week-01/
   week-02/
   week-03/
   week-04/
-Backend AI Engineering/
+Backend-AI-Engineering/
   week-01/
   week-02/
   week-03/
