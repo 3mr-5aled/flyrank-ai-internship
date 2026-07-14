@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor and IDE artifacts
+.idea/
+.vscode-test/
+*.swp
+*.swo
+*~
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*.orig
+._*
