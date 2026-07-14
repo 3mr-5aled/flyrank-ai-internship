@@ -1,5 +1,0 @@
-- [] 10+ tasks are genuinely yours, not generic examples
-- [] Every task classified with a one-line rationale
-- [] At least two tasks honestly marked "just me" with a reason
-- [] Three target tasks are specific with measurable success definitions
-- [x] Tool accounts and Academy enrollment evidenced
