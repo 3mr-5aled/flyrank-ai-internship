@@ -79,16 +79,14 @@ app.post("/tasks", (req, res) => {
     return res.status(404).send({ error: "No tasks found" });
   }
   return res.send(result);
-      error: "Title is required",
-    });
+});
+
 // Stats endpoint
 app.get("/stats", (req, res) => {
   const total = tasks.length;
   const done = tasks.filter((t) => t.done).length;
   const open = total - done;
   return res.send({ total, done, open });
-});
-
 
   newTask.id = tasks.length + 1;
   newTask.done = false;
@@ -105,12 +103,12 @@ app.put("/tasks/:id", (req, res) => {
   const taskIndex = tasks.findIndex((t) => t.id === taskId);
   const updatedTask = req.body;
 
-// Reset endpoint — restore default seed tasks
-app.post("/reset", (req, res) => {
-  tasks.length = 0;
-  defaultTasks.forEach((t) => tasks.push({ ...t }));
-  return res.status(200).send({ message: "Reset to default tasks", tasks });
-});
+  // Reset endpoint — restore default seed tasks
+  app.post("/reset", (req, res) => {
+    tasks.length = 0;
+    defaultTasks.forEach((t) => tasks.push({ ...t }));
+    return res.status(200).send({ message: "Reset to default tasks", tasks });
+  });
 
   if (taskIndex === -1) {
     return res.status(404).send({ error: `Task ${taskId} not found` });
