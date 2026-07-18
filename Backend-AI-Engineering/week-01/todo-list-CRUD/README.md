@@ -81,6 +81,22 @@ Use the `Try it out` buttons to exercise the full CRUD cycle without curl.
 - Data is stored in memory (the `tasks` array). Restarting the server resets data.
 - This project is intentionally small for learning; for production use, add persistent storage, authentication, and input sanitization.
 
+## Optional extras added
+
+- Filtering: `GET /tasks?done=true` returns only finished tasks.
+- Search: `GET /tasks?search=milk` returns tasks whose title contains the word.
+- Stats: `GET /stats` returns `{ "total": N, "done": D, "open": O }`.
+- Seed & reset: `POST /reset` restores the example tasks (useful for demos).
+
+Mortality experiment (what happens when you restart the server):
+
+1. Create a few tasks using `POST /tasks`.
+2. Restart the server and call `GET /tasks`.
+
+You will see the tasks you created earlier are gone — the server returns the seeded example tasks. This happens because tasks are kept only in memory; restarting the Node process clears that memory. That transient behavior is intentional for this exercise and is why later weeks introduce persistent storage.
+
+Extras: filtering by `done`, text search, `/stats`, and `/reset` endpoint.
+
 ## License
 
 MIT

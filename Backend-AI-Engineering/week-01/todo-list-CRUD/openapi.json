@@ -9,20 +9,34 @@
   "paths": {
     "/": {
       "get": {
-        "summary": "API root",
-        "description": "Returns API metadata",
+        "summary": "List tasks",
+        "description": "Returns a list of tasks (supports ?done=true|false and ?search=term)",
+        "parameters": [
+          {
+            "name": "done",
+            "in": "query",
+            "description": "Filter by done status (true or false)",
+            "schema": { "type": "string", "enum": ["true","false"] }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Text search in task title",
+            "schema": { "type": "string" }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "API info",
+            "description": "A list of tasks",
             "content": {
               "application/json": {
-                "schema": { "type": "object" }
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } }
               }
             }
-          }
+          },
+          "404": { "description": "No tasks found" }
         }
-      }
-    },
+      },
     "/health": {
       "get": {
         "summary": "Health check",
@@ -127,6 +141,47 @@
         "responses": {
           "204": { "description": "Task deleted (no content)" },
           "404": { "description": "Task not found" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/stats": {
+      "get": {
+        "summary": "Statistics",
+        "description": "Returns total/done/open counts",
+        "responses": {
+          "200": {
+            "description": "Stats object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": { "type": "integer" },
+                    "done": { "type": "integer" },
+                    "open": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reset": {
+      "post": {
+        "summary": "Reset tasks",
+        "description": "Restore seed example tasks",
+        "responses": {
+          "200": {
+            "description": "Reset completed",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
         }
       }
     }
