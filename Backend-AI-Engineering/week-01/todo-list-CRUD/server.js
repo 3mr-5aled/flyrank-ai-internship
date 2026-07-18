@@ -2,9 +2,24 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
+const tasks = [
+  {
+    id: 1,
+    title: "Task 1",
+    done: false,
+  },
+  {
+    id: 2,
+    title: "Task 2",
+    done: true,
+  },
+];
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+// Stage 1:  Your first real endpoint
 
 // 1. GET / endpoint
 app.get("/", (req, res) => {
@@ -14,4 +29,25 @@ app.get("/", (req, res) => {
 // 2, GET /health endpoint
 app.get("/health", (req, res) => {
   res.send({ status: "ok" });
+});
+
+// Stage 2 :  Read: list and single task
+
+// 1. GET /tasks endpoint
+app.get("/tasks", (req, res) => {
+  if (tasks.length === 0) {
+    res.status(404).send({ error: "No tasks found" });
+  }
+  res.send(tasks);
+});
+
+// 2. GET /tasks/:id endpoint
+app.get("/tasks/:id", (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task) {
+    res.status(404).send({ error: `Task ${taskId} not found` });
+  } else {
+    res.send(task);
+  }
 });
