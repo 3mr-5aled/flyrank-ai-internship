@@ -1,0 +1,15 @@
+{
+  "name": "todo-list-crud-ai",
+  "version": "1.0.0",
+  "description": "AI-generated todo CRUD API (Stage 7 comparison)",
+  "license": "ISC",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
