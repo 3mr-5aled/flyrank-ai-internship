@@ -1,4 +1,6 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const openapi = require("./openapi.json");
 const app = express();
 const port = 3000;
 
@@ -15,11 +17,11 @@ const tasks = [
   },
 ];
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
-
 app.use(express.json());
+
+// Serve OpenAPI spec and Swagger UI
+app.get("/openapi.json", (req, res) => res.json(openapi));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
 // Stage 1:  Your first real endpoint
 
@@ -107,4 +109,8 @@ app.delete("/tasks/:id", (req, res) => {
   }
   tasks.splice(taskIndex, 1);
   return res.status(204).end();
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
