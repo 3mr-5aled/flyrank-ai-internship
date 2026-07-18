@@ -19,6 +19,8 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
 
+app.use(express.json());
+
 // Stage 1:  Your first real endpoint
 
 // 1. GET / endpoint
@@ -50,4 +52,23 @@ app.get("/tasks/:id", (req, res) => {
   } else {
     res.send(task);
   }
+});
+
+// Stage 3: Create: POST a new task
+// create task endpoint
+app.post("/tasks", (req, res) => {
+  const newTask = req.body;
+
+  if (!newTask || !newTask.title) {
+    return res.status(400).send({
+      error: "Title is required",
+    });
+  }
+
+  newTask.id = tasks.length + 1;
+  newTask.done = false;
+
+  tasks.push(newTask);
+
+  res.status(201).send(newTask);
 });
