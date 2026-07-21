@@ -9,123 +9,147 @@ const defaultTasks = [
   { id: 2, title: "Task 2", done: true },
 ];
 
-const tasks = [
-  {
-    id: 1,
-    title: "Task 1",
-    done: false,
-  },
-  {
-    id: 2,
-    title: "Task 2",
-    done: true,
-  },
-];
+const tasks = defaultTasks.map((t) => ({ ...t })); // Create a copy of default tasks
 
 app.use(express.json());
 
-// Serve OpenAPI spec and Swagger UI
-app.get("/openapi.json", (req, res) => res.json(openapi));
+function resetTasks() {
+  tasks.length = 0;
+  defaultTasks.forEach((t) => tasks.push({ ...t }));
+}
+// -----------------------------------
+// Stage 5 — Swagger UI at /docs
+// -----------------------------------
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
-// Stage 1:  Your first real endpoint
-
-// 1. GET / endpoint
+// ---------------------------------------------------------------------------
+// Stage 1 — the front door
+// ---------------------------------------------------------------------------
 app.get("/", (req, res) => {
-  res.send({ name: "Task API", version: "1.0", endpoints: ["/tasks"] });
+  res.json({
+    name: "Task API",
+    version: "1.0",
+    endpoints: ["/tasks", "/health", "/stats", "/reset"],
+  });
 });
 
-// 2, GET /health endpoint
 app.get("/health", (req, res) => {
-  res.send({ status: "ok" });
+  res.json({ status: "ok" });
 });
 
-// Stage 2 :  Read: list and single task
-
-// 1. GET /tasks endpoint
+// ---------------------------------------------------------------------------
+// Stage 2 — Read: list + single task (with optional filtering/search extras)
+// ---------------------------------------------------------------------------
 app.get("/tasks", (req, res) => {
-  if (tasks.length === 0) {
-    res.status(404).send({ error: "No tasks found" });
+  let result = tasks;
+
+  if (req.query.done !== undefined) {
+    if (req.query.done !== "true" && req.query.done !== "false") {
+      return res.status(400).json({
+        error:
+          "Invalid value for 'done' query parameter. Use 'true' or 'false'.",
+      });
+    }
+    const filteredDone = req.query.done === "true";
+    result = result.filter((t) => Boolean(t.done) === filteredDone);
   }
-  res.send(tasks);
+
+  if (req.query.search) {
+    const searchTitle = String(req.query.search).toLowerCase();
+    result = result.filter((t) => t.title.toLowerCase().includes(searchTitle));
+  }
+
+  if (result.length === 0) {
+    return res.status(404).json({ error: "No tasks found" });
+  }
+  res.json(result);
 });
 
-// 2. GET /tasks/:id endpoint
 app.get("/tasks/:id", (req, res) => {
   const taskId = parseInt(req.params.id);
   const task = tasks.find((t) => t.id === taskId);
   if (!task) {
-    res.status(404).send({ error: `Task ${taskId} not found` });
-  } else {
-    res.send(task);
+    res.status(404).json({ error: `Task ${taskId} not found` });
   }
+  res.json(task);
 });
 
-// Stage 3: Create: POST a new task
-// create task endpoint
-app.post("/tasks", (req, res) => {
-  // support filters: ?done=true|false, ?search=term
-  let result = tasks.slice();
-  const { done, search } = req.query;
-  if (done !== undefined) {
-    const wantDone = done === "true";
-    result = result.filter((t) => Boolean(t.done) === wantDone);
-  }
-  if (search) {
-    const q = String(search).toLowerCase();
-    result = result.filter((t) => t.title.toLowerCase().includes(q));
-  }
-  if (result.length === 0) {
-    return res.status(404).send({ error: "No tasks found" });
-  }
-  return res.send(result);
-});
+// ---------------------------------------------------------------------------
+// Extras — stats. Declared before "/tasks/:id" so "stats" isn't read as an id.
+// ---------------------------------------------------------------------------
 
-// Stats endpoint
 app.get("/stats", (req, res) => {
   const total = tasks.length;
   const done = tasks.filter((t) => t.done).length;
   const open = total - done;
-  return res.send({ total, done, open });
-
-  newTask.id = tasks.length + 1;
-  newTask.done = false;
-
-  tasks.push(newTask);
-
-  res.status(201).send(newTask);
+  return res.json({ total, done, open });
 });
 
-// Stage 4: Update & Delete
-// 1. PUT /tasks/:id endpoint
+// ---------------------------------------------------------------------------
+// Extras — reset back to the 3 example tasks
+// ---------------------------------------------------------------------------
+app.post("/reset", (req, res) => {
+  resetTasks();
+  return res.json({ message: "Tasks reset to default", tasks });
+});
+
+// ---------------------------------------------------------------------------
+// Stage 3 — Create
+// ---------------------------------------------------------------------------
+app.post("/tasks", (req, res) => {
+  const { title } = req.body;
+
+  if (title === undefined || title === null || title.trim() === "") {
+    return res.status(400).json({ error: "Title is required" });
+  }
+
+  const id = tasks.length === 0 ? 1 : Math.max(...tasks.map((t) => t.id)) + 1;
+  const newTask = { id, title: String(title).trim(), done: false };
+  tasks.push(newTask);
+  return res.status(201).json(newTask);
+});
+
+// ---------------------------------------------------------------------------
+// Stage 4 — Update + Delete
+// ---------------------------------------------------------------------------
+
 app.put("/tasks/:id", (req, res) => {
-  const taskId = parseInt(req.params.id);
-  const taskIndex = tasks.findIndex((t) => t.id === taskId);
-  const updatedTask = req.body;
+  const id = Number(req.params.id);
+  const task = tasks.find((t) => t.id === id);
 
-  // Reset endpoint — restore default seed tasks
-  app.post("/reset", (req, res) => {
-    tasks.length = 0;
-    defaultTasks.forEach((t) => tasks.push({ ...t }));
-    return res.status(200).send({ message: "Reset to default tasks", tasks });
-  });
-
-  if (taskIndex === -1) {
-    return res.status(404).send({ error: `Task ${taskId} not found` });
+  if (!task) {
+    return res.status(404).json({ error: `Task ${id} not found` });
   }
 
-  if (!updatedTask) {
-    return res.status(400).send({ error: "No data provided for update" });
-  }
+  const { title, done } = req.body ?? {};
+  const hasTitle = Object.prototype.hasOwnProperty.call(
+    req.body ?? {},
+    "title",
+  );
+  const hasDone = Object.prototype.hasOwnProperty.call(req.body ?? {}, "done");
 
-  if (updatedTask.title === undefined && updatedTask.done === undefined) {
+  if (!hasTitle && !hasDone) {
     return res
       .status(400)
-      .send({ error: "No valid fields provided for update" });
+      .json({ error: "request body must include title and/or done" });
   }
 
-  tasks[taskIndex] = { ...tasks[taskIndex], ...updatedTask };
-  return res.status(200).send(tasks[taskIndex]);
+  if (hasTitle) {
+    if (title === null || String(title).trim() === "") {
+      return res.status(400).json({ error: "title cannot be empty" });
+    }
+    task.title = String(title).trim();
+  }
+
+  if (hasDone) {
+    if (typeof done !== "boolean") {
+      return res.status(400).json({ error: "done must be a boolean" });
+    }
+    task.done = done;
+  }
+
+  res.json(task);
 });
 
 // 2. DELETE /tasks/:id endpoint
@@ -133,12 +157,13 @@ app.delete("/tasks/:id", (req, res) => {
   const taskId = parseInt(req.params.id);
   const taskIndex = tasks.findIndex((t) => t.id === taskId);
   if (taskIndex === -1) {
-    return res.status(404).send({ error: `Task ${taskId} not found` });
+    return res.status(404).json({ error: `Task ${taskId} not found` });
   }
   tasks.splice(taskIndex, 1);
   return res.status(204).end();
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Example app listening on: http://localhost:${port}`);
+  console.log(`Swagger UI available at http://localhost:${port}/docs`);
 });
