@@ -1,7 +1,7 @@
 {
-  "name": "todo-list-crud",
+  "name": "tasks-crud",
   "version": "1.0.0",
-  "description": "todo crud system",
+  "description": "tasks crud system",
   "license": "ISC",
   "author": "",
   "type": "commonjs",

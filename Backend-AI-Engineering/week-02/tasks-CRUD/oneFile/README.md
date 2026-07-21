@@ -1,4 +1,4 @@
-# Todo List CRUD API
+# Tasks CRUD API
 
 Simple Node/Express CRUD API used for the FlyRank internship exercises. It provides endpoints to create, read, update and delete tasks and includes a Swagger UI for interactive documentation.
 
@@ -138,7 +138,7 @@ separate — the hand-built `server.js` above is untouched.
 
 2. **`POST /tasks` validation is stricter.** My version never actually validates
    `title` — the `POST /tasks` handler was accidentally written to handle
-   *filtering/search* instead of *creating* (the filter logic was misplaced
+   _filtering/search_ instead of _creating_ (the filter logic was misplaced
    there). The AI validates that `title` is a non-empty string and returns 400
    if it is missing or blank.
 
@@ -150,7 +150,7 @@ separate — the hand-built `server.js` above is untouched.
 ### What the AI got wrong or quietly ignored
 
 1. **`/reset` registered inside `PUT /tasks/:id`.** In my version, the
-   `app.post("/reset", ...)` call is *nested inside* the `PUT` handler — so
+   `app.post("/reset", ...)` call is _nested inside_ the `PUT` handler — so
    `/reset` only gets registered if a `PUT` request is made first. The AI
    placed `/reset` at the module's top level. I never mentioned this bug in my
    prompt, but the AI quietly fixed it because it just wrote clean code top-to-bottom.
@@ -158,7 +158,7 @@ separate — the hand-built `server.js` above is untouched.
 2. **`GET /tasks` had a double-send bug.** My `GET /tasks` calls
    `res.status(404).send(...)` without `return`, so if the list is empty the
    server crashes with a "headers already sent" error. The AI used `return`
-   consistently. My prompt described the *intent* correctly but the AI also
+   consistently. My prompt described the _intent_ correctly but the AI also
    deduced the `return` guard from good practice.
 
 3. **The OpenAPI spec has a duplicate `paths` key.** My `openapi.json` declares
@@ -184,6 +184,7 @@ separate — the hand-built `server.js` above is untouched.
 ### One rematch
 
 **Improved prompt addition:**
+
 > "After every DELETE, IDs must never be reused — use a persistent counter that
 > only increments. Validate that `POST /tasks` body contains a non-empty `title`
 > string and return 400 otherwise. Use `return` before every error response to
@@ -198,15 +199,15 @@ first prompt.
 
 ### Quick diff summary
 
-| Area | Hand-built (`server.js`) | AI version (`ai-version/server.js`) |
-|---|---|---|
-| ID generation | `tasks.length + 1` (breaks after DELETE) | `nextId++` persistent counter ✅ |
-| POST /tasks body | filters/searches (wrong handler!) | validates + creates task ✅ |
-| Double-send guard | missing `return` on 404 path | `return` on every early exit ✅ |
-| `/reset` registration | nested inside PUT handler (bug) | top-level route ✅ |
-| OpenAPI spec | two `"paths"` keys (invalid) | one unified `paths` block ✅ |
-| Title validation | none | non-empty string check + trim ✅ |
-| Serialisation | `res.send()` (inconsistent) | `res.json()` everywhere ✅ |
+| Area                  | Hand-built (`server.js`)                 | AI version (`ai-version/server.js`) |
+| --------------------- | ---------------------------------------- | ----------------------------------- |
+| ID generation         | `tasks.length + 1` (breaks after DELETE) | `nextId++` persistent counter ✅    |
+| POST /tasks body      | filters/searches (wrong handler!)        | validates + creates task ✅         |
+| Double-send guard     | missing `return` on 404 path             | `return` on every early exit ✅     |
+| `/reset` registration | nested inside PUT handler (bug)          | top-level route ✅                  |
+| OpenAPI spec          | two `"paths"` keys (invalid)             | one unified `paths` block ✅        |
+| Title validation      | none                                     | non-empty string check + trim ✅    |
+| Serialisation         | `res.send()` (inconsistent)              | `res.json()` everywhere ✅          |
 
 > **The lesson:** The AI's output was exactly as good as my specification — and
 > I could only judge it because I had built the thing myself first.

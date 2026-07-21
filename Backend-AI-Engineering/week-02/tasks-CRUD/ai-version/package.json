@@ -1,0 +1,21 @@
+{
+  "name": "tasks-crud-api",
+  "version": "1.0.0",
+  "description": "Simple in-memory Tasks CRUD API built with Express.js and Swagger UI",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": ["crud", "tasks", "express", "swagger"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

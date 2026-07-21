@@ -1,11 +1,13 @@
 {
-  "name": "todo-list-crud-ai",
+  "name": "tasks-crud",
   "version": "1.0.0",
-  "description": "AI-generated todo CRUD API (Stage 7 comparison)",
+  "description": "tasks crud system",
   "license": "ISC",
+  "author": "",
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "dependencies": {
