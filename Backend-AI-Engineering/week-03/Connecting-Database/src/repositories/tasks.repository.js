@@ -32,10 +32,16 @@ function findById(id) {
 }
 
 function create(task) {
-  const id = tasks.length === 0 ? 1 : Math.max(...tasks.map((t) => t.id)) + 1;
-  const newTask = { id, ...task };
-  tasks.push(newTask);
-  return { ...newTask };
+  const { title, done } = task;
+  return db.run(
+    "INSERT INTO tasks (title, done) VALUES (?, ?)",
+    [title, done],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+      }
+    },
+  );
 }
 
 function update(id, changes) {
