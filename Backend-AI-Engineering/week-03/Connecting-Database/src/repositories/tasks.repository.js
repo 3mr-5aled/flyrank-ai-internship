@@ -9,33 +9,26 @@
 // findAll / findById / create / update / remove — they don't care what's behind them.
 // The functions return COPIES, the way a database hands you fresh rows.
 
-const SEED_TASKS = [
-  {
-    id: 1,
-    title: "Task 1",
-    done: false,
-  },
-  {
-    id: 2,
-    title: "Task 2",
-    done: true,
-  },
-  {
-    id: 3,
-    title: "Task 3",
-    done: false,
-  },
-];
-
-let tasks = SEED_TASKS.map((task) => ({ ...task }));
+const db = require("../tasks.db");
 
 function findAll() {
-  return tasks.map((task) => ({ ...task }));
+  return db.all("SELECT * FROM tasks", (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      return [];
+    }
+    return rows.map((row) => ({ ...row }));
+  });
 }
 
 function findById(id) {
-  const task = tasks.find((task) => task.id === id);
-  return task ? { ...task } : null;
+  return db.get("SELECT * FROM tasks WHERE id = ?", [id], (err, row) => {
+    if (err) {
+      console.error(err.message);
+      return null;
+    }
+    return row ? { ...row } : null;
+  });
 }
 
 function create(task) {
