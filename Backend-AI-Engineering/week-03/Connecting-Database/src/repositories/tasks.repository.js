@@ -37,7 +37,11 @@ function findById(id) {
 }
 
 function create(task) {
-
+  const { title, done } = task;
+  const info = db
+    .prepare("INSERT INTO tasks (title, done) VALUES (?, ?)")
+    .run(title, done ? 1 : 0);
+  return findById(info.lastInsertRowid);
 }
 
 function update(id, changes) {
