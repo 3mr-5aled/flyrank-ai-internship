@@ -14,7 +14,7 @@ const router = express.Router();
 // Read: list (with optional ?done= and ?search= extras)
 router.get("/tasks", (req, res, next) => {
   try {
-    const tasks = service.listTasks({
+    const tasks = service.getAllTasks({
       done: req.query.done,
       search: req.query.search,
     });

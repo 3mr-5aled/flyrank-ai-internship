@@ -102,7 +102,7 @@ function resetTasks() {
 }
 
 module.exports = {
-  listTasks,
+  getAllTasks,
   getTask,
   createTask,
   updateTask,

@@ -20,8 +20,8 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name":      { "type": "string", "example": "Task API" },
-                    "version":   { "type": "string", "example": "1.0" },
+                    "name": { "type": "string", "example": "Task API" },
+                    "version": { "type": "string", "example": "1.0" },
                     "endpoints": {
                       "type": "array",
                       "items": { "type": "string" },
@@ -60,7 +60,7 @@
     "/tasks": {
       "get": {
         "summary": "List tasks",
-        "operationId": "listTasks",
+        "operationId": "getAllTasks",
         "parameters": [
           {
             "name": "done",
@@ -197,9 +197,17 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
                 "examples": {
-                  "emptyBody":    { "value": { "error": "request body must include title and/or done" } },
-                  "emptyTitle":   { "value": { "error": "title cannot be empty" } },
-                  "invalidDone":  { "value": { "error": "done must be a boolean" } }
+                  "emptyBody": {
+                    "value": {
+                      "error": "request body must include title and/or done"
+                    }
+                  },
+                  "emptyTitle": {
+                    "value": { "error": "title cannot be empty" }
+                  },
+                  "invalidDone": {
+                    "value": { "error": "done must be a boolean" }
+                  }
                 }
               }
             }
@@ -260,7 +268,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string", "example": "Tasks reset to default" },
+                    "message": {
+                      "type": "string",
+                      "example": "Tasks reset to default"
+                    },
                     "tasks": {
                       "type": "array",
                       "items": { "$ref": "#/components/schemas/Task" }
@@ -280,9 +291,9 @@
         "type": "object",
         "required": ["id", "title", "done"],
         "properties": {
-          "id":    { "type": "integer", "example": 1 },
-          "title": { "type": "string",  "example": "Buy groceries" },
-          "done":  { "type": "boolean", "example": false }
+          "id": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "Buy groceries" },
+          "done": { "type": "boolean", "example": false }
         }
       },
       "CreateTaskRequest": {
@@ -296,8 +307,8 @@
         "type": "object",
         "minProperties": 1,
         "properties": {
-          "title": { "type": "string",  "example": "Buy oat milk" },
-          "done":  { "type": "boolean", "example": true }
+          "title": { "type": "string", "example": "Buy oat milk" },
+          "done": { "type": "boolean", "example": true }
         }
       },
       "Error": {
@@ -312,8 +323,8 @@
         "required": ["total", "done", "open"],
         "properties": {
           "total": { "type": "integer", "example": 7 },
-          "done":  { "type": "integer", "example": 3 },
-          "open":  { "type": "integer", "example": 4 }
+          "done": { "type": "integer", "example": 3 },
+          "open": { "type": "integer", "example": 4 }
         }
       }
     }
