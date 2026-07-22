@@ -1,75 +1,46 @@
-// ===========================================================================
-// REPOSITORY LAYER — the ONLY file that knows *where* tasks are stored.
-// ===========================================================================
-// Right now that's a list in memory (exactly like Assignment 1). But this is
-// the single file you rewrite to move to a real database:
-//   - Assignment 2 (SQLite):   these functions run SELECT / INSERT / UPDATE / DELETE
-//   - Assignment 3 (Postgres): same functions, a different driver
-// The routes and the service NEVER change, because they only ever call
-// findAll / findById / create / update / remove — they don't care what's behind them.
-// The functions return COPIES, the way a database hands you fresh rows.
+const path = require("path");
+const db = require("better-sqlite3")(path.join(__dirname, "../tasks.db"), { verbose: console.log });
 
-const db = require("../tasks.db");
+// Create table named tasks if it does not already exist
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    done INTEGER NOT NULL DEFAULT 0
+  )
+`).run();
+
+// Seed three example tasks only if the table is empty
+const rowCount = db.prepare("SELECT COUNT(*) AS count FROM tasks").get().count;
+if (rowCount === 0) {
+  const insertStmt = db.prepare("INSERT INTO tasks (title, done) VALUES (?, ?)");
+  insertStmt.run("Learn SQL", 0);
+  insertStmt.run("Build a REST API", 0);
+  insertStmt.run("Deploy the application", 0);
+}
 
 function findAll() {
-  return db.all("SELECT * FROM tasks", (err, rows) => {
-    if (err) {
-      console.error(err.message);
-      return [];
-    }
-    return rows.map((row) => ({ ...row }));
-  });
+
 }
 
 function findById(id) {
-  return db.get("SELECT * FROM tasks WHERE id = ?", [id], (err, row) => {
-    if (err) {
-      console.error(err.message);
-      return null;
-    }
-    return row ? { ...row } : null;
-  });
+
 }
 
 function create(task) {
-  const { title, done } = task;
-  return db.run(
-    "INSERT INTO tasks (title, done) VALUES (?, ?)",
-    [title, done],
-    (err) => {
-      if (err) {
-        console.error(err.message);
-      }
-    },
-  );
+
 }
 
 function update(id, changes) {
-  const { title, done } = changes;
-  return db.run(
-    "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
-    [title, done, id],
-    (err) => {
-      if (err) {
-        console.error(err.message);
-      }
-    },
-  );
+
 }
 
 function remove(id) {
-  return db.run("DELETE FROM tasks WHERE id = ?", [id], (err) => {
-    if (err) {
-      console.error(err.message);
-      return false;
-    }
-    return true;
-  });
+
 }
 
 function reset() {
-  tasks = SEED_TASKS.map((task) => ({ ...task }));
-  return findAll();
+
 }
 
 module.exports = { findAll, findById, create, update, remove, reset };
