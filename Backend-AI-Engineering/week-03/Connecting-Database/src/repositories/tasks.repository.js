@@ -1,88 +1,62 @@
 const path = require("path");
-const db = require("better-sqlite3")(path.join(__dirname, "../tasks.db"), { verbose: console.log });
+const db = require("better-sqlite3")(path.join(__dirname, "../tasks.db"));
 
-// Create table named tasks if it does not already exist
-db.prepare(`
+// 1. Setup table
+db.exec(`
   CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     done INTEGER NOT NULL DEFAULT 0
-  )
-`).run();
+  );
+`);
 
-// Seed three example tasks only if the table is empty
-const rowCount = db.prepare("SELECT COUNT(*) AS count FROM tasks").get().count;
-if (rowCount === 0) {
-  const insertStmt = db.prepare("INSERT INTO tasks (title, done) VALUES (?, ?)");
-  insertStmt.run("Learn SQL", 0);
-  insertStmt.run("Build a REST API", 0);
-  insertStmt.run("Deploy the application", 0);
+// Helper to seed tasks
+const seedTasks = () => {
+  const insert = db.prepare("INSERT INTO tasks (title, done) VALUES (?, 0)");
+  insert.run("Learn SQL");
+  insert.run("Build a REST API");
+  insert.run("Deploy the application");
+};
+
+// 2. Seed if empty
+if (db.prepare("SELECT COUNT(*) AS count FROM tasks").get().count === 0) {
+  seedTasks();
 }
 
-function mapTask(row) {
-  if (!row) return row;
-  return {
-    ...row,
-    done: !!row.done,
-  };
-}
+// Helper to convert SQLite 0/1 to boolean
+const mapTask = (task) => task ? { ...task, done: !!task.done } : null;
 
 function findAll() {
   return db.prepare("SELECT * FROM tasks").all().map(mapTask);
 }
 
 function findById(id) {
-  const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
-  return mapTask(row);
+  return mapTask(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id));
 }
 
-function create(task) {
-  const { title, done } = task;
-  const info = db
-    .prepare("INSERT INTO tasks (title, done) VALUES (?, ?)")
-    .run(title, done ? 1 : 0);
-  return findById(info.lastInsertRowid);
+function create({ title }) {
+  const info = db.prepare("INSERT INTO tasks (title, done) VALUES (?, 0)").run(title);
+  return { id: info.lastInsertRowid, title, done: false };
 }
 
 function update(id, changes) {
   const task = findById(id);
-  if (!task) {
-    return null;
-  }
-  const title = changes.title !== undefined ? changes.title : task.title;
-  const done = changes.done !== undefined ? changes.done : task.done;
+  if (!task) return null;
 
+  Object.assign(task, changes);
   db.prepare("UPDATE tasks SET title = ?, done = ? WHERE id = ?")
-    .run(title, done ? 1 : 0, id);
+    .run(task.title, task.done ? 1 : 0, id);
 
-  return findById(id);
+  return task;
 }
 
 function remove(id) {
-  const info = db.prepare("DELETE FROM tasks WHERE id = ?").run(id);
-  return info.changes > 0;
+  return db.prepare("DELETE FROM tasks WHERE id = ?").run(id).changes > 0;
 }
 
 function reset() {
-  const seedSqlPath = path.join(__dirname, "../seed.sql");
-  if (fs.existsSync(seedSqlPath)) {
-    const seedSql = fs.readFileSync(seedSqlPath, "utf8");
-    db.exec("DROP TABLE IF EXISTS tasks;");
-    db.exec(seedSql);
-  } else {
-    db.exec("DROP TABLE IF EXISTS tasks;");
-    db.prepare(`
-      CREATE TABLE tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        done INTEGER NOT NULL DEFAULT 0
-      )
-    `).run();
-    const insertStmt = db.prepare("INSERT INTO tasks (title, done) VALUES (?, ?)");
-    insertStmt.run("Learn SQL", 0);
-    insertStmt.run("Build a REST API", 0);
-    insertStmt.run("Deploy the application", 0);
-  }
+  db.exec("DELETE FROM tasks;");
+  seedTasks();
   return findAll();
 }
 
