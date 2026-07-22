@@ -45,17 +45,26 @@ function create(task) {
 }
 
 function update(id, changes) {
-  const task = tasks.find((t) => t.id === id);
-  if (!task) return null;
-  Object.assign(task, changes);
-  return { ...task };
+  const { title, done } = changes;
+  return db.run(
+    "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
+    [title, done, id],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+      }
+    },
+  );
 }
 
 function remove(id) {
-  const index = tasks.findIndex((t) => t.id === id);
-  if (index === -1) return false;
-  tasks.splice(index, 1);
-  return true;
+  return db.run("DELETE FROM tasks WHERE id = ?", [id], (err) => {
+    if (err) {
+      console.error(err.message);
+      return false;
+    }
+    return true;
+  });
 }
 
 function reset() {
