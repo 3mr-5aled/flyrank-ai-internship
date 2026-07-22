@@ -8,19 +8,21 @@
 const repo = require("../repositories/tasks.repository");
 const { NotFoundError, ValidationError } = require("../error");
 
-function getAllTasks(query = {}) {
-  const { done, search } = query;
-  const filters = {};
+function getAllTasks({ done, search } = {}) {
+  let result = repo.findAll();
 
+  // Extra: filter by done=true / done=false
   if (done !== undefined) {
     if (done !== "true" && done !== "false") {
       throw new ValidationError(
         "Invalid 'done' query parameter. Must be 'true' or 'false'.",
       );
     }
-    filters.done = done === "true" ? 1 : 0;
+    const doneBool = done === "true";
+    result = result.filter((task) => task.done === doneBool);
   }
 
+  // Extra: search titles
   if (search !== undefined) {
     const searchWord = String(search).trim();
     if (searchWord === "") {
@@ -28,10 +30,11 @@ function getAllTasks(query = {}) {
         "Invalid 'search' query parameter. Must not be empty.",
       );
     }
-    filters.search = searchWord;
+    const lowerSearchWord = searchWord.toLowerCase();
+    result = result.filter((task) => task.title.includes(lowerSearchWord));
   }
 
-  return repo.findAll(filters);
+  return result;
 }
 
 function getTask(id) {
@@ -89,7 +92,9 @@ function deleteTask(id) {
 }
 
 function getStats() {
-  return repo.getStats();
+  const all = repo.findAll();
+  const done = all.filter((t) => t.done).length;
+  return { total: all.length, done, open: all.length - done };
 }
 
 function resetTasks() {
