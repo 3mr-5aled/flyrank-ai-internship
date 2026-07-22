@@ -19,12 +19,21 @@ if (rowCount === 0) {
   insertStmt.run("Deploy the application", 0);
 }
 
-function findAll() {
+function mapTask(row) {
+  if (!row) return row;
+  return {
+    ...row,
+    done: !!row.done,
+  };
+}
 
+function findAll() {
+  return db.prepare("SELECT * FROM tasks").all().map(mapTask);
 }
 
 function findById(id) {
-
+  const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
+  return mapTask(row);
 }
 
 function create(task) {

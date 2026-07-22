@@ -6,9 +6,10 @@
 // job) and never touches the tasks array (that's the repository's job) — it
 // just calls the repository and throws domain errors when a rule is broken.
 const repo = require("../repositories/tasks.repository");
-const { NotFoundError, ValidationError } = require("../utils/errors");
+const { NotFoundError, ValidationError } = require("../error");
 
-function getAllTasks() {
+function getAllTasks(query = {}) {
+  const { done, search } = query;
   let result = repo.findAll();
 
   // Extra: filter by done=true / done=false
@@ -31,7 +32,9 @@ function getAllTasks() {
       );
     }
     const lowerSearchWord = searchWord.toLowerCase();
-    result = result.filter((task) => task.title.includes(lowerSearchWord));
+    result = result.filter((task) =>
+      task.title.toLowerCase().includes(lowerSearchWord),
+    );
   }
 
   return result;
@@ -102,7 +105,7 @@ function resetTasks() {
 }
 
 module.exports = {
-  listTasks,
+  getAllTasks,
   getTask,
   createTask,
   updateTask,

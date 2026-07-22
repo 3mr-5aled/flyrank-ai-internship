@@ -4,7 +4,7 @@ const openapi = require("../openapi.json");
 
 const metaRoutes = require("./routes/meta.routes");
 const tasksRoutes = require("./routes/tasks.routes");
-const { errorHandler } = require("./middlewares/error-handler");
+const { errorHandler } = require("./middleware/error-handler");
 
 function createApp() {
   const app = express();

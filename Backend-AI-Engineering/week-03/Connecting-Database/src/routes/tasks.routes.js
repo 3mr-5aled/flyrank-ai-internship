@@ -1,20 +1,12 @@
-// ===========================================================================
-// ROUTE (HTTP) LAYER — the thin translator between HTTP and the service.
-// ===========================================================================
-// Each handler does only three things: read what it needs from the request,
-// call the service, and shape the HTTP response (status code + JSON). No
-// business rules, no data access. If the service throws, we hand the error to
-// Express with next(err) and the error-handler middleware sets the status code.
-
 const express = require("express");
-const service = require("../services/tasks.service");
+const service = require("../services/tasks.services");
 
 const router = express.Router();
 
 // Read: list (with optional ?done= and ?search= extras)
 router.get("/tasks", (req, res, next) => {
   try {
-    const tasks = service.listTasks({
+    const tasks = service.getAllTasks({
       done: req.query.done,
       search: req.query.search,
     });
@@ -36,7 +28,8 @@ router.get("/stats", (req, res, next) => {
 // Extra: reset to the seed tasks
 router.post("/reset", (req, res, next) => {
   try {
-    res.json(service.resetTasks());
+    const tasks = service.resetTasks();
+    res.json({ message: "Tasks reset to default", tasks });
   } catch (err) {
     next(err);
   }

@@ -8,10 +8,10 @@ const { NotFoundError, ValidationError } = require("../error");
 
 function errorHandler(err, req, res, next) {
   if (err instanceof NotFoundError) {
-    res.status(404).json({ error: err.message });
+    return res.status(404).json({ error: err.message });
   }
   if (err instanceof ValidationError) {
-    res.status(400).json({ error: err.message });
+    return res.status(400).json({ error: err.message });
   }
 
   console.error(err);
