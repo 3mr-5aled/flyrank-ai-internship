@@ -1,0 +1,14 @@
+Brand Style
+
+Typography
+- Headings: Space Grotesk
+- Body: Inter
+
+Palette
+- Primary: #4F46E5
+- Text: #111827
+- Background: #F9FAFB
+- Accent: #10B981
+
+Mood
+Modern, minimal, and engineering-focused. Let the work be the loudest thing on the page.
