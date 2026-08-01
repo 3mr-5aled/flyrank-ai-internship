@@ -3,6 +3,7 @@ const { createApp } = require("./src/app");
 const app = createApp();
 const port = 3000;
 
+// Check if Supabase is connected
 const connectedToSupabase = async () => {
   try {
     if (!app.supabase) return false;
