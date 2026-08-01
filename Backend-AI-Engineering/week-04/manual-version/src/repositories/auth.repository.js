@@ -20,7 +20,18 @@ async function signIn(supaBase, { email, password }) {
   return data;
 }
 
+async function refreshSession(supaBase, refresh_token) {
+  const { data, error } = await supaBase.auth.refreshSession({
+    refresh_token,
+  });
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
 module.exports = {
   signUp,
   signIn,
+  refreshSession,
 };

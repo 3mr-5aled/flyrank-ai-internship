@@ -38,4 +38,22 @@ router.get("/protected/dashboard", requireAuth, (req, res) => {
   });
 });
 
+router.get("/protected/admin", requireAuth, (req, res) => {
+  const isAdmin =
+    req.user.app_metadata?.role === "admin" ||
+    req.user.user_metadata?.role === "admin" ||
+    req.user.email === "admin@example.com";
+
+  if (!isAdmin) {
+    return res.status(403).json({
+      error: "Forbidden: Admin privileges required",
+    });
+  }
+
+  return res.status(200).json({
+    message: "Welcome to the secret admin zone!",
+    user_id: req.user.id,
+  });
+});
+
 module.exports = router;

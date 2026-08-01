@@ -25,6 +25,18 @@ router.post("/auth/login", async (req, res, next) => {
   }
 });
 
+router.post("/auth/refresh", async (req, res, next) => {
+  try {
+    const result = await service.refreshUserToken(req.app.supabase, req.body ?? {});
+    return res.status(200).json(result);
+  } catch (err) {
+    if (err.status === 401 || err.message === "Invalid or expired refresh token") {
+      return res.status(401).json({ error: "Invalid or expired refresh token" });
+    }
+    next(err);
+  }
+});
+
 router.post("/auth/logout", requireAuth, async (req, res, next) => {
   try {
     await req.app.supabase.auth.signOut();

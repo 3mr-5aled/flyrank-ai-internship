@@ -51,7 +51,34 @@ async function loginUser(supabase, body = {}) {
   }
 }
 
+async function refreshUserToken(supabase, body = {}) {
+  const { refresh_token } = body;
+  if (!refresh_token || !String(refresh_token).trim()) {
+    throw new ValidationError("refresh_token is required");
+  }
+
+  try {
+    const data = await repo.refreshSession(supabase, String(refresh_token).trim());
+    if (!data || !data.session) {
+      const authError = new Error("Invalid or expired refresh token");
+      authError.status = 401;
+      throw authError;
+    }
+    return {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      user: data.user,
+    };
+  } catch (error) {
+    if (error instanceof ValidationError) throw error;
+    const authError = new Error("Invalid or expired refresh token");
+    authError.status = 401;
+    throw authError;
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  refreshUserToken,
 };
