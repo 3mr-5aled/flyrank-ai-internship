@@ -1,5 +1,6 @@
 const express = require("express");
 const service = require("../services/auth.services");
+const { requireAuth } = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
@@ -20,6 +21,15 @@ router.post("/auth/login", async (req, res, next) => {
     if (err.status === 401 || err.message === "Invalid login credentials") {
       return res.status(401).json({ error: "Invalid login credentials" });
     }
+    next(err);
+  }
+});
+
+router.post("/auth/logout", requireAuth, async (req, res, next) => {
+  try {
+    await req.app.supabase.auth.signOut();
+    return res.status(204).send();
+  } catch (err) {
     next(err);
   }
 });
