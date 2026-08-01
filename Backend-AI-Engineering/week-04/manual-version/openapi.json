@@ -3,7 +3,7 @@
   "info": {
     "title": "Task API",
     "version": "1.0",
-    "description": "In-memory CRUD API for tasks."
+    "description": "Task Management API with Supabase Authentication."
   },
   "servers": [{ "url": "http://localhost:3000" }],
   "paths": {
@@ -25,7 +25,7 @@
                     "endpoints": {
                       "type": "array",
                       "items": { "type": "string" },
-                      "example": ["/tasks", "/health", "/stats", "/reset"]
+                      "example": ["/tasks", "/health", "/stats", "/reset", "/public/info", "/protected/profile"]
                     }
                   }
                 }
@@ -53,6 +53,131 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/public/info": {
+      "get": {
+        "summary": "Public information",
+        "operationId": "getPublicInfo",
+        "description": "Returns public message without authentication",
+        "responses": {
+          "200": {
+            "description": "Public info message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Welcome stranger! This info is public." }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "summary": "User sign up",
+        "operationId": "signUp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "user@example.com" },
+                  "password": { "type": "string", "example": "password123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Bad Request - Missing email or password"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "User log in",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "user@example.com" },
+                  "password": { "type": "string", "example": "password123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Log in successful - Returns tokens"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "User log out",
+        "operationId": "logout",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": {
+            "description": "Logged out successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/protected/profile": {
+      "get": {
+        "summary": "Protected user profile",
+        "operationId": "getProtectedProfile",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/protected/dashboard": {
+      "get": {
+        "summary": "Protected user dashboard",
+        "operationId": "getProtectedDashboard",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Dashboard data"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -286,6 +411,13 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Task": {
         "type": "object",
