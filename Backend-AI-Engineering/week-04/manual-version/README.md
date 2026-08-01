@@ -1,122 +1,134 @@
-# Layered Architecture - Tasks CRUD
+# Tasks CRUD API with Supabase Authentication & Prisma ORM
 
-This folder contains a **Layered Architecture** implementation of a Tasks CRUD backend.
+A professional, layered-architecture REST API built with Node.js, Express, Prisma ORM, and Supabase JWT Authentication.
 
-## Objective
+---
 
-Build a clean and maintainable backend by separating responsibilities into layers.
+## 🌟 Features
 
-## Architecture Layers
+- **Layered Architecture:** Clear separation of concerns (Repository -> Service -> Routes -> Middleware).
+- **Authentication & Security:** Supabase Auth integration supporting User Sign Up, Log In, and Log Out.
+- **Reusable Auth Middleware:** Centralized `requireAuth` guard that verifies Supabase JWT bearer tokens.
+- **Prisma ORM Database Access:** Clean database operations using Prisma ORM with SQLite database engine.
+- **Interactive OpenAPI / Swagger Documentation:** Live interactive API docs with Bearer token authentication support at `/docs`.
+- **Automated Testing Suite:** Native Node.js test runner suite (`npm test`).
 
-### 1. Presentation Layer
-- Handles HTTP requests/responses.
-- Defines API routes and controllers.
+---
 
-### 2. Service (Business) Layer
-- Contains business rules and validation logic.
-- Coordinates data flow between presentation and data access layers.
+## 🚀 Quick Start Guide
 
-### 3. Repository (Data Access) Layer
-- Handles all database operations.
-- Abstracts persistence details from the service layer.
+### 1. Prerequisites
+- Node.js (v20+)
+- npm
 
-### 4. Model/Entity Layer
-- Defines task data schema or entity structure.
+### 2. Environment Configuration
+Copy `.env.example` to create your local `.env` file:
 
-## Expected CRUD Features
+```bash
+cp .env.example .env
+```
 
-- Create a task
-- Get all tasks
-- Get task by ID
-- Update task
-- Delete task
+Fill in your configuration details in `.env`:
+```env
+# Database Connection
+DATABASE_URL="file:./prisma/tasks.db"
 
-## Suggested Folder Structure
+# Supabase Credentials
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+SUPABASE_SECRET_KEY=your_secret_key
+SUPABASE_JWKS_URL=https://your-project.supabase.co/auth/v1/.well-known/jwks.json
+
+# Server Port
+PORT=3000
+```
+
+### 3. Install Dependencies & Setup Database
+```bash
+npm install
+npx prisma generate
+npx prisma db push
+```
+
+### 4. Start the Application
+Run the one command to start the server:
+
+```bash
+npm start
+```
+> The API will be live at `http://localhost:3000` and Swagger UI at `http://localhost:3000/docs`.
+
+---
+
+## 📚 API Endpoints Reference
+
+| Method | Endpoint | Auth Required | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | ❌ Public | API index and metadata |
+| `GET` | `/health` | ❌ Public | Service health check |
+| `GET` | `/public/info` | ❌ Public | Public access test endpoint |
+| `POST` | `/auth/signup` | ❌ Public | Register a new user (`email`, `password`) |
+| `POST` | `/auth/login` | ❌ Public | Log in user & receive JWT access token |
+| `POST` | `/auth/logout` | 🔒 Protected | Log out user (Requires `Bearer <token>`) |
+| `GET` | `/protected/profile` | 🔒 Protected | Get user profile metadata (Requires `Bearer <token>`) |
+| `GET` | `/protected/dashboard` | 🔒 Protected | Protected user dashboard (Requires `Bearer <token>`) |
+| `GET` | `/tasks` | ❌ Public | List tasks (supports `?done=` and `?search=`) |
+| `POST` | `/tasks` | ❌ Public | Create a new task |
+| `GET` | `/tasks/:id` | ❌ Public | Get task by ID |
+| `PUT` | `/tasks/:id` | ❌ Public | Update task by ID (`title`, `done`) |
+| `DELETE` | `/tasks/:id` | ❌ Public | Delete task by ID |
+| `GET` | `/stats` | ❌ Public | Get task counts (total, done, open) |
+| `POST` | `/reset` | ❌ Public | Reset tasks to initial seed state |
+
+---
+
+## 🔒 Swagger UI & Authentication
+
+Interactive Swagger UI is available at `http://localhost:3000/docs`. Click the **Authorize** button at the top right to input your `access_token` returned by `/auth/login` to test protected routes directly in your browser.
+
+![Swagger UI Bearer Auth Screenshot](src/swagger_auth_screenshot.png)
+
+---
+
+## 🧪 Running Integration Tests
+
+Run the full integration test suite with:
+
+```bash
+npm test
+```
+
+---
+
+## 📁 Repository Structure
 
 ```text
-Layered-architecture/
-├── controllers/        # Request handlers
-├── services/           # Business logic
-├── repositories/       # DB access logic
-├── models/             # Task schema/entity
-├── routes/             # API route definitions
-├── config/             # App/DB configuration
-├── app.js              # App setup
-└── server.js           # Server entry point
+.
+├── .env.example
+├── .gitignore
+├── openapi.json
+├── package.json
+├── prisma.config.ts
+├── server.js
+├── tasks.test.js
+├── prisma/
+│   └── schema.prisma
+└── src/
+    ├── app.js
+    ├── error.js
+    ├── db/
+    │   └── index.js
+    ├── middleware/
+    │   ├── auth.middleware.js
+    │   └── error-handler.js
+    ├── repositories/
+    │   ├── auth.repository.js
+    │   └── tasks.repository.js
+    ├── routes/
+    │   ├── auth.routes.js
+    │   ├── meta.routes.js
+    │   └── tasks.routes.js
+    └── services/
+        ├── auth.services.js
+        └── tasks.services.js
 ```
-
-## API Endpoints (Example)
-
-| Method | Endpoint        | Description          |
-|--------|------------------|----------------------|
-| POST   | `/tasks`         | Create a new task    |
-| GET    | `/tasks`         | Get all tasks        |
-| GET    | `/tasks/:id`     | Get task by ID       |
-| PUT    | `/tasks/:id`     | Update a task        |
-| DELETE | `/tasks/:id`     | Delete a task        |
-
-## Benefits of This Approach
-
-- Clear separation of concerns
-- Easier testing and debugging
-- Better scalability and maintainability
-
-## Notes
-
-- Keep controllers thin.
-- Place validation/business decisions in services.
-- Keep repositories focused on persistence only.
-
-## Database Documentation
-
-### PostgreSQL Migration
-We migrated the application database from **SQLite** to **PostgreSQL** to support production-ready features, concurrent connections, and robust data persistence.
-- **Connection Configuration:** The database connection is configured via the `DATABASE_URL` environment variable (e.g., `postgres://username:password@host:port/database`).
-- **Automatic Initialization:** On application startup, the repository layer checks if the `tasks` table exists. If it does not, it automatically creates the schema (with auto-incrementing serial IDs and timestamps) and inserts default seed tasks.
-
-### Starting the Project
-
-You can run the application in two ways:
-
-#### Option 1: Using Docker Compose (Recommended)
-This spins up the database and the API services in isolated Docker containers with zero manual configuration.
-```bash
-docker compose up --build
-```
-Once started:
-- The API will be available at [http://localhost:3000](http://localhost:3000)
-- Swagger API documentation will be available at [http://localhost:3000/docs](http://localhost:3000/docs)
-- PostgreSQL database is exposed on port `5432` with credentials defined in `compose.yaml`.
-
-#### Option 2: Running Locally (Node.js & Local PostgreSQL)
-1. Ensure you have a running PostgreSQL instance.
-2. Create a `.env` file in the root directory and configure your connection string:
-   ```env
-   DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Run the application:
-   ```bash
-   npm start
-   ```
-
-## Containerization Setup
-
-The stack is containerized using two main configuration files:
-1. **[Dockerfile](file:///D:/03-Career/02-Internships/Flyrank%20AI%20Intern/Assignments/flyrank-ai-internship/Backend-AI-Engineering/week-03/A3-Containerize-your-stack/manual-version/Dockerfile):** Builds a lightweight production container using `node:20-alpine`, installs only production dependencies, copies the source code, and runs `server.js`.
-2. **[compose.yaml](file:///D:/03-Career/02-Internships/Flyrank%20AI%20Intern/Assignments/flyrank-ai-internship/Backend-AI-Engineering/week-03/A3-Containerize-your-stack/manual-version/compose.yaml):** Defines two services:
-   - `api`: The Node.js application container, configured to depend on `db` and expose port `3000`.
-   - `db`: A PostgreSQL container (`postgres:17`) configured with an active data volume (`taskdata`) to ensure persistent database storage between container restarts.
-
-## Example SQL Query (Stage 4)
-We run the following parameterized query to fetch a single task by its ID using the `pg` client:
-```sql
-SELECT * FROM tasks WHERE id = $1
-```
-
-## Reflecting on Migrating to Postgres and Containerization
-Migrating to PostgreSQL and containerizing the stack with Docker has significantly simplified local environment setup. Developers no longer need to worry about manually installing or managing local PostgreSQL services. Docker Compose handles orchestrating the database service, volume persistence, and environment linkage out of the box, ensuring that the application environment behaves identically across all development and production environments.
-
