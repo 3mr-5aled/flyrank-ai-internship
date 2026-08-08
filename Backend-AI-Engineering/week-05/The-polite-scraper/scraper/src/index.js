@@ -1,13 +1,28 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import * as cheerio from 'cheerio';
+import { z } from 'zod';
 
 const START_URL = 'https://books.toscrape.com/catalogue/page-1.html';
 const MAX_PAGES = 3;
 const CACHE_DIR = path.resolve('cache');
+const OUTPUT_DIR = path.resolve('output');
 const USER_AGENT = 'FlyRankInternshipA9/1.0 (+https://github.com/3mr-5aled/flyrank-ai-internship)';
 const REQUEST_TIMEOUT_MS = 5000;
 const REQUEST_DELAY_MS = 500;
+
+// Define Zod Schema for finished book record
+const BookSchema = z.object({
+  title: z.string().min(1, 'Title cannot be empty'),
+  product_url: z.string().url('Must be a valid URL').startsWith('https://', 'URL must start with https://'),
+  price_text: z.string().min(1, 'Price text cannot be empty'),
+  price_gbp: z.number().positive('Price must be a positive number'),
+  availability_text: z.string().min(1, 'Availability text cannot be empty'),
+  rating_text: z.string().min(1, 'Rating text cannot be empty'),
+  description: z.string().nullable(),
+  source_page: z.string().url('Source page must be a valid URL'),
+  fetched_at: z.string().min(1, 'Fetched timestamp required')
+});
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -103,12 +118,21 @@ async function discoverCatalogueBookLinks() {
   return bookItemsMap;
 }
 
-function parseBookRecord(html, productUrl, sourcePage, fetchedAt) {
+function parseAndCleanBookRecord(html, productUrl, sourcePage, fetchedAt) {
   const $ = cheerio.load(html);
   const productMain = $('.product_main');
 
   const title = productMain.find('h1').text().trim() || null;
   const priceText = productMain.find('p.price_color').text().trim() || null;
+
+  // Convert raw price string ("£51.77") to clean float (51.77)
+  let priceGbp = null;
+  if (priceText) {
+    const match = priceText.match(/[0-9.]+/);
+    if (match) {
+      priceGbp = parseFloat(match[0]);
+    }
+  }
 
   const rawAvailability = productMain.find('p.availability').text();
   const availabilityText = rawAvailability ? rawAvailability.replace(/\s+/g, ' ').trim() : null;
@@ -125,6 +149,7 @@ function parseBookRecord(html, productUrl, sourcePage, fetchedAt) {
     title,
     product_url: productUrl,
     price_text: priceText,
+    price_gbp: priceGbp,
     availability_text: availabilityText,
     rating_text: ratingText,
     description,
@@ -133,22 +158,51 @@ function parseBookRecord(html, productUrl, sourcePage, fetchedAt) {
   };
 }
 
-async function extractAllBookDetails() {
+async function runPipeline() {
   const bookItemsMap = await discoverCatalogueBookLinks();
-  const rawRecords = [];
+  const validRecordsMap = new Map(); // Canonical identity: product_url -> validated record
+  const invalidRecords = [];
 
   for (const [productUrl, sourcePage] of bookItemsMap.entries()) {
     const cacheFile = getBookCacheFilename(productUrl);
     const { html, fetchedAt } = await fetchWithCache(productUrl, cacheFile);
-    const record = parseBookRecord(html, productUrl, sourcePage, fetchedAt);
-    rawRecords.push(record);
+    const record = parseAndCleanBookRecord(html, productUrl, sourcePage, fetchedAt);
+
+    // Validate against Zod schema before storing
+    const validation = BookSchema.safeParse(record);
+    if (validation.success) {
+      validRecordsMap.set(record.product_url, validation.data);
+    } else {
+      invalidRecords.push({
+        record,
+        errors: validation.error.format()
+      });
+    }
   }
 
-  console.log('\nSample Raw Record:');
-  console.log(JSON.stringify(rawRecords[0], null, 2));
-  console.log(`\nunique_urls=${rawRecords.length}`);
+  const validRecords = Array.from(validRecordsMap.values());
 
-  return rawRecords;
+  // Ensure output directory exists
+  if (!fs.existsSync(OUTPUT_DIR)) {
+    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  }
+
+  const outputBooksFile = path.join(OUTPUT_DIR, 'books.json');
+  const rootBooksFile = path.resolve('books.json');
+  const outputErrorsFile = path.resolve('errors.json');
+
+  // Store output idempotently
+  fs.writeFileSync(outputBooksFile, JSON.stringify(validRecords, null, 2), 'utf-8');
+  fs.writeFileSync(rootBooksFile, JSON.stringify(validRecords, null, 2), 'utf-8');
+  fs.writeFileSync(outputErrorsFile, JSON.stringify(invalidRecords, null, 2), 'utf-8');
+
+  const allHttps = validRecords.every((r) => r.product_url.startsWith('https://'));
+
+  console.log(`\nbooks_count=${validRecords.length}`);
+  console.log(`errors_count=${invalidRecords.length}`);
+  console.log(`all_https=${allHttps}`);
+
+  return validRecords;
 }
 
-extractAllBookDetails();
+runPipeline();
