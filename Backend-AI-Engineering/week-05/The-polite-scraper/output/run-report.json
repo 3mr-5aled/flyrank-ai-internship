@@ -1,0 +1,11 @@
+{
+  "startTime": "2026-08-08T12:41:55.265Z",
+  "endTime": "2026-08-08T12:41:56.735Z",
+  "durationMs": 1470,
+  "pagesFetched": 1,
+  "cacheHits": 63,
+  "validRecords": 60,
+  "invalidRecords": 0,
+  "failedPages": 1,
+  "failed_pages": 1
+}
