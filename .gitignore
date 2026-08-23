@@ -16,3 +16,7 @@ desktop.ini
 *.bak
 *.orig
 ._*
+.playwright-mcp/
+homepage.png
+mobile-view.png
+
