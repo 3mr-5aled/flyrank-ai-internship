@@ -11,12 +11,12 @@
 | prompt-vault.png            | AI Project          | Real Screenshot | Shows AI workflow project              |
 | quota-calc.jpg              | Featured Project    | Real Screenshot | Demonstrates practical web application |
 | VisionVibe.jpg              | Featured Project    | Real Screenshot | Highlights UI/UX work                  |
-| supermarketo.jpg            | Featured Project    | Real Screenshot | Shows frontend development skills      |
+| supermarko.jpg              | Featured Project    | Real Screenshot | Shows frontend development skills      |
 | shortly-url.jpg             | Mini Project        | Real Screenshot | Demonstrates utility application       |
 | time-tracking.jpg           | UI Challenge        | Real Screenshot | Shows layout and state management      |
 | interactive-rating.jpg      | UI Component        | Real Screenshot | Demonstrates component implementation  |
 | sema3ny.jpg                 | Personal Project    | Real Screenshot | Adds project diversity                 |
-| entoha.jpg                  | Client Project      | Real Screenshot | Represents real production work        |
+| entqha.jpg                  | Client Project      | Real Screenshot | Represents real production work        |
 | fnan-dribbble.jpg           | Design Showcase     | Real Screenshot | Displays design capability             |
 | as-salam-college-school.jpg | Educational Website | Real Screenshot | Represents client-oriented development |
 
