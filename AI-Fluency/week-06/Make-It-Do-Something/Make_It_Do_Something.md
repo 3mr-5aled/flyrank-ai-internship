@@ -63,9 +63,9 @@ Here is the exact journey of a message sent through the live portfolio contact f
 ## 3. Evidence of Live Working Submission
 
 * **Live URL:** `https://3mr5aled.vercel.app#contact`
-* **Test Submission Record:**
-  * **Sender:** `test-visitor@flyrank-eval.org`
-  * **Subject/Message:** *"Testing portfolio contact form end-to-end delivery."*
+* **Test Submission Record & Proof Screenshots:**
+  * **Contact Form Submission:** ![Contact Form Submit](./contact-form-submit.png)
+  * **Email Receipt Verification:** ![Email with Contact Info](./email-with-contact-info.png)
   * **Status:** Submission received successfully in dashboard & email inbox without mid-run errors.
 
 ---
