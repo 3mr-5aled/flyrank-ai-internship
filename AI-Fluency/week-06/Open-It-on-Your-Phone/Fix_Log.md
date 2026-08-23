@@ -2,7 +2,7 @@
 
 > **Track:** General AI Fluency | **Week:** 6 | **Phase:** Build+  
 > **Workload:** 4 Hours | **Author:** Amr Khaled Morcy  
-> **Live Site URL:** `https://3mr5aled.netlify.app`
+> **Live Site URL:** `https://3mr5aled.vercel.app`
 
 ---
 

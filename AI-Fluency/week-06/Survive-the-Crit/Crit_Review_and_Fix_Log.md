@@ -9,7 +9,7 @@
 
 ## 1. Review Setup & Core Questions
 
-The live portfolio (`https://3mr5aled.netlify.app`) was submitted for peer review along with the Chapter 1 Proof Statement. The reviewer was instructed to evaluate the portfolio without defensive commentary from the author, focusing on two primary questions:
+The live portfolio (`https://3mr5aled.vercel.app`) was submitted for peer review along with the Chapter 1 Proof Statement. The reviewer was instructed to evaluate the portfolio without defensive commentary from the author, focusing on two primary questions:
 
 1. **Question 1:** *"In ten seconds, what do I do?"*
    * **Reviewer Answer:** *"You are a full-stack developer who builds web applications with React, Next.js, Node.js, and AI workflows."* -> **[PASS]** (Clear positioning landed immediately).

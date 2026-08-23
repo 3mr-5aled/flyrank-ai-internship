@@ -25,7 +25,7 @@ const RUBRICS = {
     name: 'Personal Website Live & DNS Walkthrough',
     minWords: 300,
     maxWords: 1200,
-    requiredKeywords: ['dns', 'resolver', 'nameserver', 'cname', 'https', 'netlify'],
+    requiredKeywords: ['dns', 'resolver', 'nameserver', 'cname', 'https', 'vercel'],
     requiredSections: ['What is DNS', 'Step-by-Step', 'CNAME Record']
   },
   'FL-06': {

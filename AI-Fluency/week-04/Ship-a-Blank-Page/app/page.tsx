@@ -142,11 +142,11 @@ export default function Home() {
           <div className="p-4 bg-white border border-gray-200 rounded-lg text-center font-bold text-gray-800 text-sm sm:text-base">REST APIs & JWT</div>
           <div className="p-4 bg-white border border-gray-200 rounded-lg text-center font-bold text-gray-800 text-sm sm:text-base">MongoDB & Supabase</div>
           <div className="p-4 bg-white border border-gray-200 rounded-lg text-center font-bold text-gray-800 text-sm sm:text-base">Model Context Protocol (MCP)</div>
-          <div className="p-4 bg-white border border-gray-200 rounded-lg text-center font-bold text-gray-800 text-sm sm:text-base">Git & Vercel/Netlify</div>
+          <div className="p-4 bg-white border border-gray-200 rounded-lg text-center font-bold text-gray-800 text-sm sm:text-base">Git & Vercel</div>
         </div>
       </section>
 
-      {/* Dynamic Working Feature: Netlify / Formspree Contact Form */}
+      {/* Dynamic Working Feature: Vercel / Formspree Contact Form */}
       <section id="contact" className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-gray-200">
         <div className="max-w-2xl mx-auto bg-white p-6 sm:p-10 border border-gray-200 rounded-2xl shadow-sm">
           <div className="mb-6">
@@ -158,14 +158,12 @@ export default function Home() {
           </div>
 
           <form
-            name="contact"
+            action="https://formspree.io/f/xbjnqpyz"
             method="POST"
-            data-netlify="true"
-            action="/#contact-success"
             className="flex flex-col gap-4 sm:gap-5"
           >
-            {/* Hidden input for Netlify Form detection */}
-            <input type="hidden" name="form-name" value="contact" />
+            {/* Hidden input for form identification */}
+            <input type="hidden" name="_subject" value="New submission from Vercel Portfolio" />
 
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-gray-800 mb-1.5">

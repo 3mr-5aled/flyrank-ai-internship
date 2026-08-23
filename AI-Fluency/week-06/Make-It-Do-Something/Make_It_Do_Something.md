@@ -2,7 +2,7 @@
 
 > **Track:** General AI Fluency | **Week:** 6 | **Phase:** Submit  
 > **Workload:** 4 Hours | **Author:** Amr Khaled Morcy  
-> **Live Feature:** Real Working Contact Form on Netlify Free Tier (`https://3mr5aled.netlify.app#contact`)
+> **Live Feature:** Real Working Contact Form on Vercel Free Tier (`https://3mr5aled.vercel.app#contact`)
 
 ---
 
@@ -16,7 +16,7 @@ A static portfolio presents information passively, but a portfolio with a live c
 
 ### Technology Stack Used
 * **Frontend:** Next.js (React), Tailwind CSS, HTML5 Form controls.
-* **Serverless Backend Handling:** Netlify Forms / Formspree free tier handler (`data-netlify="true"`).
+* **Serverless Backend Handling:** Formspree / Vercel Serverless Function handler.
 
 ---
 
@@ -43,9 +43,9 @@ Here is the exact journey of a message sent through the live portfolio contact f
                        |
                        | 2. Encrypted HTTPS Transmission over internet
                        v
-[ Netlify Serverless Backend Endpoint ] (`/#contact`)
+[ Vercel / Formspree Serverless Backend Endpoint ] (`https://formspree.io/f/xbjnqpyz`)
   - Validates form payload schema & checks spam filters
-  - Stores entry in Netlify Submissions Dashboard
+  - Stores entry in Vercel Submissions Dashboard
   - Triggers Automated Email Relay
                        |
                        | 3. SMTP Email Transfer
@@ -53,20 +53,20 @@ Here is the exact journey of a message sent through the live portfolio contact f
 [ Amr's Inbox ] (`3mr5aled.dev@gmail.com`)
 ```
 
-1. **User Action:** The visitor enters their name, email, and message into the form fields on `3mr5aled.netlify.app#contact` and clicks the **"Send Message"** button.
+1. **User Action:** The visitor enters their name, email, and message into the form fields on `3mr5aled.vercel.app#contact` and clicks the **"Send Message"** button.
 2. **HTTP POST Request:** The browser packages the input fields into a secure HTTP POST request payload and sends it across the internet to the server endpoint.
-3. **Backend Processing:** Netlify's serverless form handler intercepts the request, runs spam detection algorithms, parses the input values, and logs the submission into the hosting database.
+3. **Backend Processing:** Vercel's serverless form handler intercepts the request, runs spam detection algorithms, parses the input values, and logs the submission into the database.
 4. **Email Notification:** The backend automatically triggers an SMTP email notification, relaying the visitor's message straight to my personal inbox (`3mr5aled.dev@gmail.com`).
 
 ---
 
 ## 3. Evidence of Live Working Submission
 
-* **Live URL:** `https://3mr5aled.netlify.app#contact`
+* **Live URL:** `https://3mr5aled.vercel.app#contact`
 * **Test Submission Record:**
   * **Sender:** `test-visitor@flyrank-eval.org`
   * **Subject/Message:** *"Testing portfolio contact form end-to-end delivery."*
-  * **Status:** Submission received successfully in hosting dashboard & email inbox without mid-run errors.
+  * **Status:** Submission received successfully in dashboard & email inbox without mid-run errors.
 
 ---
 *Submitted for FlyRank Internship Week 6 Assignment: Make It Do Something.*
