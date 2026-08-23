@@ -38,7 +38,7 @@ Rather than designing each portfolio section ad-hoc, all visual parameters are d
   | **Accent** | Emerald 500 | `#10B981` | Success indicators, live status badges, subtle highlights |
 
 - **Logo & Favicon:**
-  - Minimalist vector mark saved as [Logo.png](./Decide-Once-Build-Your-Identity-Kit/Logo.png).
+  - Minimalist vector mark saved as [Logo.png](../Decide-Once-Build-Your-Identity-Kit/Logo.png).
 
 ---
 
@@ -71,22 +71,22 @@ All 16 portfolio projects are represented exclusively using **authentic screensh
 
 | Image File | Project Category | Proof Type | Rationale |
 |---|---|---|---|
-| [darsy.jpg](./curate-your-images/projects/darsy.jpg) | Featured LMS | Real Screenshot | Demonstrates completed user interface and course management flow |
-| [home-champion.jpg](./curate-your-images/projects/home-champion.jpg) | Featured App | Real Screenshot | Validates complex dashboard layout and responsive UI |
-| [hospital-api.png](./curate-your-images/projects/hospital-api.png) | Backend API | Real Screenshot | Proves backend REST API architecture & database design |
-| [tomory-ecommerce.jpg](./curate-your-images/projects/tomory-ecommerce.jpg) | E-commerce | Real Screenshot | Shows full-stack shopping flow and catalog management |
-| [prompt-vault.png](./curate-your-images/projects/prompt-vault.png) | AI Engineering | Real Screenshot | Demonstrates custom AI prompt tooling in production |
-| [quota-calc.jpg](./curate-your-images/projects/quota-calc.jpg) | Web Utility | Real Screenshot | Shows functional logic and practical utility calculation |
-| [VisionVibe.jpg](./curate-your-images/projects/VisionVibe.jpg) | Frontend App | Real Screenshot | Highlights clean UI component implementation |
-| [supermarko.jpg](./curate-your-images/projects/supermarko.jpg) | Web App | Real Screenshot | Demonstrates frontend state management |
-| [shortly-url.jpg](./curate-your-images/projects/shortly-url.jpg) | Mini Tool | Real Screenshot | Proves end-to-end URL shortening integration |
-| [time-tracking.jpg](./curate-your-images/projects/time-tracking.jpg) | UI Challenge | Real Screenshot | Demonstrates precise UI layout execution |
-| [interactive-rating.jpg](./curate-your-images/projects/interactive-rating.jpg) | Component | Real Screenshot | Shows interactive component state handling |
-| [sema3ny.jpg](./curate-your-images/projects/sema3ny.jpg) | Personal App | Real Screenshot | Illustrates project diversity |
-| [entqha.jpg](./curate-your-images/projects/entqha.jpg) | Client Project | Real Screenshot | Demonstrates client-facing production delivery |
-| [fnan-dribbble.jpg](./curate-your-images/projects/fnan-dribbble.jpg) | Design Work | Real Screenshot | Shows design fidelity and UI execution |
-| [as-salam-college-school.jpg](./curate-your-images/projects/as-salam-college-school.jpg) | Client Site | Real Screenshot | Proves production client deployment |
-| [mr-khaled-morcy.jpg](./curate-your-images/projects/mr-khaled-morcy.jpg) | Bio / Hero | Real Photo | Establishes authentic human identity |
+| [darsy.jpg](../curate-your-images/projects/darsy.jpg) | Featured LMS | Real Screenshot | Demonstrates completed user interface and course management flow |
+| [home-champion.jpg](../curate-your-images/projects/home-champion.jpg) | Featured App | Real Screenshot | Validates complex dashboard layout and responsive UI |
+| [hospital-api.png](../curate-your-images/projects/hospital-api.png) | Backend API | Real Screenshot | Proves backend REST API architecture & database design |
+| [tomory-ecommerce.jpg](../curate-your-images/projects/tomory-ecommerce.jpg) | E-commerce | Real Screenshot | Shows full-stack shopping flow and catalog management |
+| [prompt-vault.png](../curate-your-images/projects/prompt-vault.png) | AI Engineering | Real Screenshot | Demonstrates custom AI prompt tooling in production |
+| [quota-calc.jpg](../curate-your-images/projects/quota-calc.jpg) | Web Utility | Real Screenshot | Shows functional logic and practical utility calculation |
+| [VisionVibe.jpg](../curate-your-images/projects/VisionVibe.jpg) | Frontend App | Real Screenshot | Highlights clean UI component implementation |
+| [supermarko.jpg](../curate-your-images/projects/supermarko.jpg) | Web App | Real Screenshot | Demonstrates frontend state management |
+| [shortly-url.jpg](../curate-your-images/projects/shortly-url.jpg) | Mini Tool | Real Screenshot | Proves end-to-end URL shortening integration |
+| [time-tracking.jpg](../curate-your-images/projects/time-tracking.jpg) | UI Challenge | Real Screenshot | Demonstrates precise UI layout execution |
+| [interactive-rating.jpg](../curate-your-images/projects/interactive-rating.jpg) | Component | Real Screenshot | Shows interactive component state handling |
+| [sema3ny.jpg](../curate-your-images/projects/sema3ny.jpg) | Personal App | Real Screenshot | Illustrates project diversity |
+| [entqha.jpg](../curate-your-images/projects/entqha.jpg) | Client Project | Real Screenshot | Demonstrates client-facing production delivery |
+| [fnan-dribbble.jpg](../curate-your-images/projects/fnan-dribbble.jpg) | Design Work | Real Screenshot | Shows design fidelity and UI execution |
+| [as-salam-college-school.jpg](../curate-your-images/projects/as-salam-college-school.jpg) | Client Site | Real Screenshot | Proves production client deployment |
+| [mr-khaled-morcy.jpg](../curate-your-images/projects/mr-khaled-morcy.jpg) | Bio / Hero | Real Photo | Establishes authentic human identity |
 
 ### C. Standardized AI Image Style Guide
 When generative AI is used for non-proof visual elements (e.g., subtle hero background textures), it must strictly follow a locked style specification:
@@ -118,12 +118,12 @@ Across every page, case study, and section of the portfolio, all user flows term
 
 All deliverables for Week 03 have been curated, verified, and linked below:
 
-- **Identity Kit Module:** [Identity-Kit.md](./Decide-Once-Build-Your-Identity-Kit/Identity-Kit.md)
-- **AI Instructions:** [Claude-Project-Instructions.txt](./Decide-Once-Build-Your-Identity-Kit/Claude-Project-Instructions.txt)
-- **Image Curation Overview:** [curate-your-images/README.md](./curate-your-images/README.md)
-- **AI Style Guide:** [AI_STYLE.md](./curate-your-images/AI_STYLE.md)
-- **Keepers (Real Proof):** [KEEPERS.md](./curate-your-images/KEEPERS.md)
-- **Rejection Log:** [REJECTION.md](./curate-your-images/REJECTION.md)
-- **One-Line Claim:** [01-one-line-claim.md](./through-line-assignment/01-one-line-claim.md)
-- **Content Map:** [02-content-map.md](./through-line-assignment/02-content-map.md)
-- **Proof Audit:** [03-proof-to-gather.md](./through-line-assignment/03-proof-to-gather.md)
+- **Identity Kit Module:** [Identity-Kit.md](../Decide-Once-Build-Your-Identity-Kit/Identity-Kit.md)
+- **AI Instructions:** [Claude-Project-Instructions.txt](../Decide-Once-Build-Your-Identity-Kit/Claude-Project-Instructions.txt)
+- **Image Curation Overview:** [curate-your-images/README.md](../curate-your-images/README.md)
+- **AI Style Guide:** [AI_STYLE.md](../curate-your-images/AI_STYLE.md)
+- **Keepers (Real Proof):** [KEEPERS.md](../curate-your-images/KEEPERS.md)
+- **Rejection Log:** [REJECTION.md](../curate-your-images/REJECTION.md)
+- **One-Line Claim:** [01-one-line-claim.md](../through-line-assignment/01-one-line-claim.md)
+- **Content Map:** [02-content-map.md](../through-line-assignment/02-content-map.md)
+- **Proof Audit:** [03-proof-to-gather.md](../through-line-assignment/03-proof-to-gather.md)

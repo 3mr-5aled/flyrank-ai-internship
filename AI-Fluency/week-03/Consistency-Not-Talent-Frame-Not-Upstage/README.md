@@ -1,4 +1,4 @@
-# Week 03: Consistency, Not Talent (and Frame, Not Upstage)
+# Consistency, Not Talent (and Frame, Not Upstage)
 
 **Track:** General AI Fluency  
 **Phase:** Foundations  
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The central theme of Week 03 is **AI Judgment**: telling good output from bad, exercising restraint, and making simple, intentional decisions that elevate a software engineer's portfolio from amateur to professional without needing graphic design talent.
+The central theme of this assignment is **AI Judgment**: telling good output from bad, exercising visual restraint, and making simple, intentional decisions that elevate a software engineer's portfolio from amateur to professional without needing graphic design talent.
 
 When working with generative AI, it is trivial to generate hundreds of shiny images or complex UI designs in minutes. The real engineering skill is **curation and judgment**:
 1. Making a few consistent decisions (typography, colors, logo) and sticking to them.
@@ -18,35 +18,19 @@ When working with generative AI, it is trivial to generate hundreds of shiny ima
 
 ---
 
-## Repository Structure & Deliverables
+## Folder & Repository Deliverables
 
-Week 03 is organized into four core modules:
+This dedicated module synthesizes and references all Week 03 assets across the repository:
 
 ```text
-week-03/
-├── README.md                                      # Top-level overview & synthesis (This file)
-├── Consistency-Not-Talent-Frame-Not-Upstage.md    # In-depth assignment report & judgment framework
-├── Decide-Once-Build-Your-Identity-Kit/           # Visual identity guidelines & design tokens
-│   ├── Identity-Kit.md
-│   ├── Logo.png
-│   └── Claude-Project-Instructions.txt
-├── curate-your-images/                             # Visual asset curation & AI rejection logs
-│   ├── README.md
-│   ├── AI_STYLE.md
-│   ├── KEEPERS.md
-│   ├── REJECTION.md
-│   ├── Logo.png
-│   └── projects/                                  # 16 authentic project screenshots
-└── through-line-assignment/                       # Content structure & messaging alignment
-    ├── README.md
-    ├── 01-one-line-claim.md
-    ├── 02-content-map.md
-    └── 03-proof-to-gather.md
+AI-Fluency/week-03/Consistency-Not-Talent-Frame-Not-Upstage/
+├── README.md                                      # Overview & synthesis (This file)
+└── Consistency-Not-Talent-Frame-Not-Upstage.md    # Detailed assignment report & judgment framework
 ```
 
 ---
 
-## Key Pillars of Week 03
+## Key Pillars
 
 ### 1. Simple Choices that Feel Intentional (Consistency over Talent)
 - **Typography:** `Space Grotesk` (Headings) + `Inter` (Body).
@@ -69,6 +53,6 @@ week-03/
 
 ---
 
-## Detailed Documentation
+## Full Report
 
 For the full detailed breakdown and evaluation criteria, see [Consistency-Not-Talent-Frame-Not-Upstage.md](./Consistency-Not-Talent-Frame-Not-Upstage.md).
