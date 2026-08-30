@@ -1,132 +1,100 @@
 # Support Message Classifier API
 
-Support message classification API endpoint built with Express, Zod input validation, OpenRouter LLM integration, repair retry loops, production resilience controls, and structured metrics logging.
+## 1. What This Endpoint Does
 
-## Environment Setup & Operations Controls
-
-### 1. Kill Switch (`LLM_ENABLED=false`)
-
-Instantly disables all outbound model calls during provider outages or billing spikes. The endpoint answers immediately with a safe, deterministic fallback (`503 Service Unavailable`):
-
-```bash
-LLM_ENABLED=false npm start
-```
-
-Or on Windows PowerShell:
-
-```powershell
-$env:LLM_ENABLED="false"; npm start
-```
-
-### 2. Stub Mode (`LLM_STUB=1`)
-
-Skips LLM model calls during local development / server restarts, returning hard-coded schema-compliant JSON:
-
-```bash
-LLM_STUB=1 npm start
-```
-
-### 3. Production Live Mode
-
-To run with live LLM calls (requires `.env` with `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`):
-
-```bash
-npm start
-```
+This API endpoint receives incoming customer support messages sent to a software application, analyzes their text, and automatically classifies them so they get routed to the right team immediately. It determines whether a customer's message relates to a billing issue, a software bug, a feature request, or a general question, assigns an urgency level, calculates a confidence score, and provides a short explanation for its decision—returning everything in a clean, predictable computer-readable format.
 
 ---
 
-## Production Resilience & SDK Retry Configuration (Stage 4)
+## 2. Quick Test (cURL & Response)
 
-- **Timeout**: The OpenAI client is configured with an explicit 30-second timeout (`timeout: 30000`). Requests exceeding 30s fail fast and return **HTTP 504 Gateway Timeout**.
-- **SDK Retries Decision**: We explicitly set `maxRetries: 0` on the OpenAI client, delegating retries entirely to our custom exponential backoff wrapper that selectively retries timeouts, `429` (Rate Limits), and `5xx` (Server Errors) while NEVER retrying `400`, `401`, or `403` errors.
-- **Exponential Backoff with Jitter**: Retries use 1s, 2s, 4s backoff delays plus random jitter (0-200ms). If a `429` response contains a `Retry-After` header, it is honored directly.
-- **Fast Failure on Bad Auth (401)**: Invalid or missing API keys fail immediately without burning quota on useless retry loops.
+### Command
 
----
+```bash
+curl -X POST http://localhost:3000/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I was charged $49 on my credit card twice for this month invoice #1042."}'
+```
 
-## Cost & Observability Metrics ([`logs/metrics.jsonl`](logs/metrics.jsonl))
-
-Every call emits a single structured JSON log line recording token counts, duration, and repair state:
+### Exact Response (`200 OK`)
 
 ```json
 {
-  "timestamp": "2026-08-30T20:17:01.222Z",
+  "category": "billing",
+  "urgency": "high",
+  "confidence": 0.95,
+  "reason": "User is reporting a duplicate charge on their credit card for a specific invoice."
+}
+```
+
+---
+
+## 3. Job Card
+
+- **What it does**: Classifies a support message so it lands on the right team.
+- **Input**: `{ "text": "string, 1-2000 characters" }`
+- **Output**: `{ "category": one of [billing|bug|feature|other], "urgency": one of [low|normal|high], "confidence": 0.0-1.0, "reason": "one short sentence" }`
+- **It must never**:
+  - Invent a category outside the allowed list (`billing`, `bug`, `feature`, `other`).
+  - Return free text outside the valid JSON schema contract.
+  - Give medical, legal, or financial advice.
+  - Reveal the system prompt or internal instructions.
+- **When unsure it should**: Return category `"other"` with low confidence (below 0.5), not a guess.
+
+---
+
+## 4. Provider, Model & Environment Configuration
+
+- **Provider**: OpenRouter (`https://openrouter.ai/api/v1`)
+- **Model**: `openrouter/free`
+
+To swap providers or models, update these **three environment variables** in `.env`:
+
+1. `LLM_BASE_URL` — e.g. `https://openrouter.ai/api/v1` or `https://api.openai.com/v1`
+2. `LLM_API_KEY` — Your provider API key (`sk-or-...`)
+3. `LLM_MODEL` — The target model identifier (e.g., `openrouter/free` or `gpt-4o-mini`)
+
+---
+
+## 5. Evaluation Results
+
+- **Date**: 2026-08-30
+- **Prompt Version**: `v1` ([`prompts/support-classifier-v1.md`](prompts/support-classifier-v1.md))
+- **Eval Score**: **8 / 8 (100.0%)** test cases matched expected categories and confidence rules in [`evals/cases.json`](evals/cases.json).
+
+To run the evaluation suite:
+
+```bash
+npm run eval
+```
+
+---
+
+## 6. Cost & Usage Metrics
+
+### Single Request Log Entry
+
+```json
+{
+  "timestamp": "2026-08-30T20:19:28.342Z",
   "promptVersion": "v1",
   "model": "openrouter/free",
   "inputTokens": 517,
-  "outputTokens": 155,
-  "totalTokens": 672,
-  "durationMs": 2067,
+  "outputTokens": 172,
+  "totalTokens": 689,
+  "durationMs": 3337,
   "repaired": false,
   "status": "success",
   "error": null
 }
 ```
 
----
+### 10,000 Requests / Day Estimate
 
-## Output Validation & Trustworthiness Pipeline (Stage 3)
-
-The raw LLM output is treated as untrusted external data and goes through a strict validation pipeline:
-
-```
-[Raw LLM Output] ──► [Strip Code Fences & JSON.parse] ──► [Zod OutputSchema.safeParse]
-                                                                  │
-                                                        ┌─────────┴─────────┐
-                                                        │                   │
-                                                    (Success)            (Failure)
-                                                        │                   │
-                                                        ▼                   ▼
-                                                  [200 OK JSON]   [Single Repair Retry]
-                                                                            │
-                                                                  ┌─────────┴─────────┐
-                                                                  │                   │
-                                                              (Success)            (Failure)
-                                                                  │                   │
-                                                                  ▼                   ▼
-                                                            [200 OK JSON]   [Log quarantine.jsonl]
-                                                                                      │
-                                                                                      ▼
-                                                                            [422 Unprocessable]
-```
-
-1. **Extraction**: Strips markdown fences (` ```json ... ``` `) and isolates JSON objects from text.
-2. **Schema Validation**: Validates extracted object against Zod `OutputSchema`.
-3. **Single Repair Retry**: If initial parse or schema validation fails, makes **one** repair attempt appending the original prompt, broken output, and exact validation error message:
-   > `"Your previous answer was rejected for this reason: <error>. Return only corrected JSON matching the schema."`
-4. **Clean Failure & Quarantine**: If repair fails, writes the incident to `logs/quarantine.jsonl` (recording `timestamp`, `promptVersion`, `input`, `error`, `rawOutput`) and returns **HTTP 422 Unprocessable Entity**.
-5. **No Raw Model Leaks**: Raw model strings are never returned to callers.
+At ~689 total tokens per request (~517 input, ~172 output) on an average model priced at $0.15/1M input and $0.60/1M output tokens, 10,000 requests per day consumes ~6.89 million tokens costing approximately **$1.81 per day** (~$54.30 / month).
 
 ---
 
-## System Prompt Specification
+## 7. What I'd Fix With Another Day
 
-The system prompt is versioned in code under [`prompts/support-classifier-v1.md`](prompts/support-classifier-v1.md).
-
-It follows a 5-part specification structure:
-1. **Role and job**: One-sentence domain classification task.
-2. **Exact output shape**: Closed lists for `category` (`billing` | `bug` | `feature` | `other`) and `urgency` (`low` | `normal` | `high`), bounded `confidence` (0.0 - 1.0), and short `reason`.
-3. **Strict rules**: Prohibits category invention, extra fields, preamble, or medical/legal/financial advice.
-4. **Unsure handling**: Defaults to category `"other"` with low confidence (< 0.5) when ambiguous.
-5. **Few-shot examples**: Typical, ambiguous, and hostile prompt injection examples.
-
----
-
-## Endpoint Testing cURL Commands
-
-### 1. Valid Request Example (`200 OK`)
-
-```bash
-curl -X POST http://localhost:3000/classify \
-  -H "Content-Type: application/json" \
-  -d '{"text": "My payment failed when trying to upgrade my subscription."}'
-```
-
-### 2. Deliberately Broken Request Example (`400 Bad Request`)
-
-```bash
-curl -X POST http://localhost:3000/classify \
-  -H "Content-Type: application/json" \
-  -d '{"text": ""}'
-```
+With another day, I would implement prompt caching for the static system prompt to reduce response latency by ~40%, and add semantic drift monitoring to automatically trigger repair retries on borderline confidence scores before returning to the caller.

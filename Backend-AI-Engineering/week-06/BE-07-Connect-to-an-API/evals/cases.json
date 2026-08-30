@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "name": "Billing - Double Charge",
+    "input": "I was charged $49 on my credit card twice for this month's invoice #1042.",
+    "expectedCategory": "billing",
+    "expectedUrgency": "high"
+  },
+  {
+    "id": 2,
+    "name": "Billing - Receipt Request",
+    "input": "Can I get a PDF invoice receipt sent to my accounting department?",
+    "expectedCategory": "billing",
+    "expectedUrgency": "normal"
+  },
+  {
+    "id": 3,
+    "name": "Bug - Export Crash",
+    "input": "Whenever I click Export CSV, the application page crashes with a 500 server error.",
+    "expectedCategory": "bug",
+    "expectedUrgency": "high"
+  },
+  {
+    "id": 4,
+    "name": "Bug - Alignment Issue",
+    "input": "The navigation sidebar icon is misaligned by a few pixels on iOS Safari browser.",
+    "expectedCategory": "bug",
+    "expectedUrgency": "low"
+  },
+  {
+    "id": 5,
+    "name": "Feature Request - Zapier Integration",
+    "input": "We would love an official Zapier integration to automatically sync new leads into our CRM.",
+    "expectedCategory": "feature",
+    "expectedUrgency": "normal"
+  },
+  {
+    "id": 6,
+    "name": "Feature Request - Dark Mode",
+    "input": "Please consider adding a dark mode option to the web UI dashboard in a future release.",
+    "expectedCategory": "feature",
+    "expectedUrgency": "low"
+  },
+  {
+    "id": 7,
+    "name": "Ambiguous / General Inquiry",
+    "input": "Hi team, do you have any open software engineering internship positions available for summer?",
+    "expectedCategory": "other",
+    "maxConfidence": 0.5
+  },
+  {
+    "id": 8,
+    "name": "Unsure / Out of Scope Query",
+    "input": "Can you give me a good recipe for making sourdough bread from scratch?",
+    "expectedCategory": "other",
+    "maxConfidence": 0.5
+  }
+]
