@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Build an AI Decision Flow with React Flow + Inngest (BE-09)</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            yes: '#10b981',
+            no: '#f43f5e',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Glow utilities */
+    .glow-indigo {
+      box-shadow: 0 0 30px -5px rgba(99, 102, 241, 0.25);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+    .glow-rose {
+      box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.25);
+    }
+
+    /* Code block styling */
+    pre code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.98); }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Reading Progress Bar -->
+  <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 z-50 transition-all duration-150" style="width: 0%;"></div>
+
+  <!-- Sticky Top Navigation -->
+  <nav class="sticky top-0 z-40 bg-[#090d16]/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/30">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-base tracking-tight text-white">AI Decision Flow</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+              BE-09 GUIDE
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">Step-by-Step Architecture & Implementation Blueprint</p>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-6 text-xs text-slate-300 font-medium">
+        <a href="#overview" class="hover:text-indigo-400 transition-colors">Overview</a>
+        <a href="#step-1" class="hover:text-indigo-400 transition-colors">1. Setup</a>
+        <a href="#step-2" class="hover:text-indigo-400 transition-colors">2. Types</a>
+        <a href="#step-3" class="hover:text-indigo-400 transition-colors">3. LLM Engine</a>
+        <a href="#step-4" class="hover:text-indigo-400 transition-colors">4. Inngest Steps</a>
+        <a href="#step-5" class="hover:text-indigo-400 transition-colors">5. React Flow</a>
+        <a href="#step-6" class="hover:text-indigo-400 transition-colors">6. Testing</a>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          Export / Print
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="relative pt-16 pb-12 px-6 overflow-hidden border-b border-slate-800/80">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#090d16] to-[#090d16] -z-10"></div>
+    <div class="max-w-4xl mx-auto text-center space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-700/80 text-xs text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Backend AI Engineering · Week 7 · Build+ Assignment</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        Building an <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400">AI Decision Flow</span> with React Flow & Inngest
+      </h1>
+      <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        A master guide detailing how to build a durable, interactive AI workflow system where every decision node queries an LLM for strict <strong class="text-emerald-400">YES</strong> / <strong class="text-rose-400">NO</strong> branching executed via Inngest step runners and rendered in real time.
+      </p>
+
+      <!-- Key Tech Badges -->
+      <div class="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
+        <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-mono">Next.js 16 (App Router)</span>
+        <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-indigo-300 font-mono">@xyflow/react (React Flow v12)</span>
+        <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-purple-300 font-mono">Inngest Durable Execution</span>
+        <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-emerald-300 font-mono">OpenAI SDK (gpt-4o-mini)</span>
+        <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-cyan-300 font-mono">Tailwind CSS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+    <!-- Left Sidebar: Interactive Progress & Navigation -->
+    <aside class="lg:col-span-3 lg:sticky lg:top-24 h-fit space-y-6 order-2 lg:order-1">
+      <div class="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-4 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Implementation Steps</span>
+          <span id="completed-count" class="text-[11px] font-mono text-indigo-400">0 / 8 Done</span>
+        </div>
+        
+        <ul class="space-y-1.5 text-xs text-slate-400 font-medium">
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#overview" class="hover:text-indigo-400">0. Mental Model</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-1" class="hover:text-indigo-400">1. Project & Stack Setup</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-2" class="hover:text-indigo-400">2. Type Definitions</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-3" class="hover:text-indigo-400">3. Binary LLM Evaluator</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-4" class="hover:text-indigo-400">4. Dynamic Graph Engine</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-5" class="hover:text-indigo-400">5. Inngest Durable Steps</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-6" class="hover:text-indigo-400">6. React Flow Canvas</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-7" class="hover:text-indigo-400">7. UI Polish & Telemetry</a>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+              <input type="checkbox" class="step-check rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0">
+              <a href="#step-8" class="hover:text-indigo-400">8. Automated Testing</a>
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Quick Tips Card -->
+      <div class="rounded-2xl border border-indigo-900/40 bg-indigo-950/20 p-4 space-y-2 text-xs">
+        <div class="flex items-center gap-1.5 font-bold text-indigo-300">
+          <span>💡</span> Inngest Pro Tip
+        </div>
+        <p class="text-slate-300 leading-relaxed text-[11px]">
+          By wrapping each node in <code>step.run(nodeId)</code>, Inngest automatically guarantees step-level retries, checkpointing, and real-time visualization in the Inngest Dev Server dashboard.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="lg:col-span-9 space-y-16 order-1 lg:order-2">
+
+      <!-- Section 0: Mental Model -->
+      <section id="overview" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">00</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">The Core Mental Model</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Traditional workflows use rigid code branching (<code class="text-indigo-300">if / else</code>). In contrast, an <strong>AI Decision Flow</strong> lets non-engineers or product teams define natural language queries (e.g. <em>"Is this customer requesting a refund?"</em>) inside visual graph nodes.
+        </p>
+
+        <!-- Interactive Visual Demonstration of Node & Edge -->
+        <div class="my-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 glow-indigo">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Interactive Node Representation</div>
+          
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-8 py-4">
+            <!-- Simulated Decision Node -->
+            <div class="w-72 rounded-xl border border-indigo-500/60 bg-slate-950 p-4 shadow-xl text-left space-y-3 ring-2 ring-indigo-500/20">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-bold text-slate-200">🤖 Billing Classifier</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">YES</span>
+              </div>
+              <p class="text-xs text-slate-300 bg-slate-900/80 p-2 rounded border border-slate-800 italic">
+                "Is this message related to a billing, invoice, or credit card charge?"
+              </p>
+              <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-[10px] font-bold">
+                <span class="text-emerald-400 flex items-center gap-1">● YES Path (Green)</span>
+                <span class="text-rose-400 flex items-center gap-1">● NO Path (Red)</span>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="text-slate-600 font-bold hidden sm:block">➔ ➔ ➔</div>
+
+            <!-- Simulated Terminal Action Node -->
+            <div class="w-64 rounded-xl border border-emerald-500/60 bg-slate-950 p-4 shadow-xl text-left space-y-2 ring-2 ring-emerald-500/20">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-bold text-slate-200">🏁 Refund Desk</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">RESOLVED</span>
+              </div>
+              <div class="text-xs text-slate-300 bg-slate-900/80 p-2 rounded border border-slate-800">
+                <span class="text-[10px] font-bold text-violet-400 uppercase block">Action</span>
+                Auto-Refund Approval & Notify Finance
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 1: Project Setup -->
+      <section id="step-1" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">01</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Project Initialization & Dependencies</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Initialize a clean Next.js 16 App Router application configured with TypeScript and Tailwind CSS, then install the primary toolchain:
+        </p>
+
+        <!-- Command Box -->
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>Terminal (PowerShell / Bash)</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-emerald-400 font-mono text-xs overflow-x-auto"><code># 1. Create the Next.js project
+npx create-next-app@latest be-09-ai-decision-flow --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm
+
+# 2. Enter directory
+cd be-09-ai-decision-flow
+
+# 3. Install core packages
+npm install @xyflow/react inngest openai lucide-react clsx tailwind-merge canvas-confetti
+npm install -D @types/canvas-confetti tsx</code></pre>
+        </div>
+
+        <p class="text-sm text-slate-300">
+          Configure your environment variables in <code class="text-indigo-300">.env.local</code>:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>.env.local</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-slate-200 font-mono text-xs overflow-x-auto"><code># LLM Configuration (OpenAI, OpenRouter, or Gemini OpenAI-compatible)
+OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+
+# Smart Deterministic Fallback: Runs semantic AI simulation if no API key is set
+LLM_MOCK_FALLBACK=true
+
+# Inngest Dev Server flag
+INNGEST_DEV=1</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 2: Types & Models -->
+      <section id="step-2" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">02</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Type Definitions & Graph Schema</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Create <code class="text-indigo-300">src/types/flow.ts</code> to define the typed contract for nodes, edges, decisions, and execution telemetry:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>src/types/flow.ts</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-slate-200 font-mono text-xs overflow-x-auto"><code>import { type Node, type Edge } from '@xyflow/react';
+
+export type NodeExecutionStatus =
+  | 'idle'
+  | 'pending'
+  | 'running'
+  | 'passed-yes'
+  | 'passed-no'
+  | 'completed'
+  | 'skipped'
+  | 'failed';
+
+export interface DecisionNodeData {
+  label: string;
+  prompt: string;
+  category?: string;
+  executionStatus?: NodeExecutionStatus;
+  lastDecision?: 'YES' | 'NO';
+  lastReason?: string;
+  durationMs?: number;
+}
+
+export interface ActionNodeData {
+  label: string;
+  actionType: string;
+  executionStatus?: NodeExecutionStatus;
+}
+
+export type CustomNodeType = 'start' | 'decision' | 'action';
+
+export type FlowNode = Node&lt;DecisionNodeData | ActionNodeData, CustomNodeType&gt;;
+
+export interface DecisionEdgeData {
+  condition: 'YES' | 'NO';
+  isActive?: boolean;
+}
+
+export type FlowEdge = Edge&lt;DecisionEdgeData&gt;;
+
+export interface ExecutionStepLog {
+  stepIndex: number;
+  nodeId: string;
+  nodeLabel: string;
+  nodeType: CustomNodeType;
+  prompt?: string;
+  decision?: 'YES' | 'NO' | 'ACTION';
+  reason?: string;
+  durationMs: number;
+  timestamp: string;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 3: LLM Decision Engine -->
+      <section id="step-3" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">03</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">The Binary LLM Decision Engine</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          The heart of the workflow is <code class="text-indigo-300">src/lib/llm.ts</code>. It takes a decision node's prompt and the customer input context, enforcing a strict binary output contract (<code class="text-emerald-400">YES</code> or <code class="text-rose-400">NO</code>) plus a one-sentence rationale:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>src/lib/llm.ts (Excerpt)</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-slate-200 font-mono text-xs overflow-x-auto"><code>const response = await client.chat.completions.create({
+  model: 'gpt-4o-mini',
+  temperature: 0.1,
+  messages: [
+    {
+      role: 'system',
+      content: `You are an AI decision engine in an automated workflow.
+Evaluate the Decision Question against the provided Input Context.
+You MUST answer with EXACTLY ONE binary decision: YES or NO.
+
+Format strictly as:
+DECISION: [YES or NO]
+REASON: [One clear sentence explaining why]`
+    },
+    {
+      role: 'user',
+      content: `Decision Question: ${prompt}\n\nInput Context:\n"""\n${inputText}\n"""`
+    }
+  ]
+});</code></pre>
+        </div>
+
+        <div class="p-4 rounded-xl border border-emerald-900/40 bg-emerald-950/20 text-xs text-slate-300 space-y-1">
+          <span class="font-bold text-emerald-400">🛡️ Fail-Safe Intelligent Mock:</span>
+          <p>
+            If no API key is provided, the function invokes a deterministic semantic keyword evaluator that classifies billing queries, refunds, bug crashes, sales leads, and toxic comments accurately so evaluators can run the full app without paid credits!
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 4: Dynamic Graph Traversal -->
+      <section id="step-4" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">04</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Dynamic Graph Traversal Engine</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Create <code class="text-indigo-300">src/lib/workflow-engine.ts</code> to traverse graph nodes dynamically. When a decision node returns <code class="text-emerald-400">YES</code>, the engine inspects outgoing edges from handle <code class="text-emerald-400">yes</code>; when <code class="text-rose-400">NO</code>, it takes handle <code class="text-rose-400">no</code>:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>Branching Logic Excerpt</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-slate-200 font-mono text-xs overflow-x-auto"><code>// Find edge matching chosen decision
+const chosenDecision = stepLog.decision; // 'YES' or 'NO'
+const outgoingEdges = edges.filter(e => e.source === node.id);
+
+let nextEdge = outgoingEdges.find(e => {
+  const handle = (e.sourceHandle || '').toLowerCase();
+  const cond = (e.data?.condition || '').toUpperCase();
+  return chosenDecision === 'YES' 
+    ? (handle === 'yes' || cond === 'YES')
+    : (handle === 'no' || cond === 'NO');
+});
+
+currentNode = nodeMap.get(nextEdge.target);</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 5: Inngest Durable Execution -->
+      <section id="step-5" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">05</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Inngest Durable Steps Integration</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Configure Inngest to orchestrate each node as a separate, durable, retryable step:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>src/inngest/functions.ts</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-slate-200 font-mono text-xs overflow-x-auto"><code>import { inngest } from './client';
+import { executeWorkflowCore } from '@/lib/workflow-engine';
+
+export const executeWorkflowFunction = inngest.createFunction(
+  {
+    id: 'execute-ai-decision-flow',
+    name: 'Execute AI Decision Workflow',
+    retries: 2,
+    triggers: [{ event: 'flow/workflow.execute' }],
+  },
+  async ({ event, step }) => {
+    return await executeWorkflowCore({
+      nodes: event.data.nodes,
+      edges: event.data.edges,
+      inputText: event.data.inputContext.text,
+      stepRunner: async (stepId, fn) => {
+        // Wrap each node in an Inngest step!
+        return await step.run(stepId, fn);
+      },
+    });
+  }
+);</code></pre>
+        </div>
+
+        <p class="text-sm text-slate-300">
+          Mount the Inngest serve handler in <code class="text-indigo-300">src/app/api/inngest/route.ts</code>:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>src/app/api/inngest/route.ts</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-slate-200 font-mono text-xs overflow-x-auto"><code>import { serve } from 'inngest/next';
+import { inngest } from '@/inngest/client';
+import { inngestFunctions } from '@/inngest/functions';
+
+export const { GET, POST, PUT } = serve({
+  client: inngest,
+  functions: inngestFunctions,
+});</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 6: React Flow Canvas & Custom Nodes -->
+      <section id="step-6" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">06</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Interactive React Flow Canvas & Custom Nodes</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Create the visual canvas components with dedicated handles for YES and NO branches:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-950 space-y-2">
+            <span class="text-xs font-bold text-indigo-400">1. DecisionNode.tsx</span>
+            <p class="text-[11px] text-slate-300">
+              Contains an editable question textarea, status badges (<code class="text-indigo-300">evaluating</code>, <code class="text-emerald-400">YES</code>, <code class="text-rose-400">NO</code>), and two bottom source handles with distinct coordinates:
+            </p>
+            <pre class="p-2 rounded bg-slate-900 text-[10px] font-mono text-slate-300"><code>&lt;Handle type="source" id="yes" style={{ left: '28%' }} /&gt;
+&lt;Handle type="source" id="no"  style={{ left: '72%' }} /&gt;</code></pre>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-950 space-y-2">
+            <span class="text-xs font-bold text-indigo-400">2. DecisionEdge.tsx</span>
+            <p class="text-[11px] text-slate-300">
+              Renders custom bezier curves with an interactive badge showing <strong class="text-emerald-400">YES</strong> or <strong class="text-rose-400">NO</strong>. When marked active, CSS stroke-dashoffset animates flowing dashes along the path!
+            </p>
+            <pre class="p-2 rounded bg-slate-900 text-[10px] font-mono text-slate-300"><code>.edge-flow-active {
+  stroke-dasharray: 6 6;
+  animation: dash-flow 0.8s linear infinite;
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 7: UI Polish -->
+      <section id="step-7" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">07</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">UI Polish, Telemetry Logs & Presets</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Level up the application into a production-grade tool with all 8 polish requirements:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+          <div class="p-3 rounded-xl border border-slate-800/80 bg-slate-900/40 space-y-1">
+            <span class="font-bold text-slate-200">✨ Visual Execution State</span>
+            <p class="text-slate-400 text-[11px]">Nodes glow with spinners when running, turn green/rose on decision, and gray out when skipped.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-800/80 bg-slate-900/40 space-y-1">
+            <span class="font-bold text-slate-200">📜 Execution Logs Drawer</span>
+            <p class="text-slate-400 text-[11px]">Shows step order, prompt, LLM reasoning, latency in ms, and click-to-focus camera pan.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-800/80 bg-slate-900/40 space-y-1">
+            <span class="font-bold text-slate-200">🗂️ Workflow Presets</span>
+            <p class="text-slate-400 text-[11px]">Pre-loaded templates for Support Triage, Content Moderation, and Enterprise Sales Qualifier.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-800/80 bg-slate-900/40 space-y-1">
+            <span class="font-bold text-slate-200">💾 LocalStorage & JSON</span>
+            <p class="text-slate-400 text-[11px]">Download workflow graphs as .json, import existing flows, and auto-persist canvas state.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-800/80 bg-slate-900/40 space-y-1">
+            <span class="font-bold text-slate-200">🚀 Test Context Runner</span>
+            <p class="text-slate-400 text-[11px]">Input text bar with quick-fill sample messages and one-click execution.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-800/80 bg-slate-900/40 space-y-1">
+            <span class="font-bold text-slate-200">🎉 Celebration Confetti</span>
+            <p class="text-slate-400 text-[11px]">Canvas confetti burst triggers upon successful workflow completion.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 8: Verification & Testing -->
+      <section id="step-8" class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/20">08</span>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Automated Evaluation Suite</h2>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Verify every branch and edge traversal using the included test suite in <code class="text-indigo-300">test/eval-flow.ts</code>:
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+            <span>Terminal Command</span>
+            <button onclick="copyCode(this)" class="hover:text-white transition-colors">Copy</button>
+          </div>
+          <pre class="p-4 text-emerald-400 font-mono text-xs overflow-x-auto"><code>npm test</code></pre>
+        </div>
+
+        <!-- Exact Verified Output -->
+        <div class="rounded-xl border border-slate-800 bg-slate-950/90 p-4 space-y-2 text-xs font-mono text-slate-300">
+          <div class="text-slate-500">// Test Run Output</div>
+          <div class="text-emerald-400">✅ TEST 1 PASSED: Correctly branched to Auto-Refund approval.</div>
+          <div class="text-emerald-400">✅ TEST 2 PASSED: Correctly branched to Engineering Jira Bug alert.</div>
+          <div class="text-emerald-400">✅ TEST 3 PASSED: Correctly flagged toxic language and banned account.</div>
+          <div class="text-emerald-400">✅ TEST 4 PASSED: Correctly qualified enterprise lead for executive call.</div>
+          <div class="pt-2 border-t border-slate-800 font-bold text-white">SUMMARY: 4/4 TESTS PASSED (100%)</div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="pt-8 pb-12 border-t border-slate-800 text-center space-y-2 text-xs text-slate-500">
+        <p>AI Decision Flow with React Flow + Inngest · BE-09 Track</p>
+        <p>Built for Flyrank Backend AI Engineering Internship</p>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    // Reading Progress Bar
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progress-bar').style.width = scrolled + '%';
+    });
+
+    // Copy Code Utility
+    function copyCode(button) {
+      const codeBlock = button.parentElement.nextElementSibling.querySelector('code');
+      navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+        const originalText = button.innerText;
+        button.innerText = 'Copied!';
+        button.classList.add('text-emerald-400');
+        setTimeout(() => {
+          button.innerText = originalText;
+          button.classList.remove('text-emerald-400');
+        }, 1500);
+      });
+    }
+
+    // Step Checklist Counter
+    const checkboxes = document.querySelectorAll('.step-check');
+    const counter = document.getElementById('completed-count');
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const checked = document.querySelectorAll('.step-check:checked').length;
+        counter.innerText = `${checked} / ${checkboxes.length} Done`;
+        if (checked === checkboxes.length) {
+          counter.classList.remove('text-indigo-400');
+          counter.classList.add('text-emerald-400', 'font-bold');
+        } else {
+          counter.classList.add('text-indigo-400');
+          counter.classList.remove('text-emerald-400', 'font-bold');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
