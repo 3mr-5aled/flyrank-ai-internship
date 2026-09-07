@@ -161,3 +161,42 @@ Content-Type: application/json; charset=utf-8
 > This idempotency check protects against duplicate CPU/memory compute cycles, disk bloating, and race conditions caused by impatient users double-clicking action buttons or network clients automatically retrying slow POST requests.
 >
 > A concrete real-world example where missing this check costs money is an automated billing invoice and financial statement generator: if a checkout webhook or double-clicked billing button generates two distinct invoice records for the same transaction, downstream accounting webhooks can trigger duplicate credit card charges, paid third-party tax calculation calls (e.g. Avalara), and automated transactional emails alerting the customer that they were billed twice.
+
+---
+
+## 8. Bonus Stage 7 — The AI Rematch (AI vs Me)
+
+The AI code was generated in quarantine under `ai-version/server.js`.
+
+### 1. The Written Prompt
+```text
+Write a Node.js Express service using built-in node:sqlite and Playwright that generates a PDF report from a SQLite database and serves it by URL link:
+1. Schema & Seed: Table 'books' (id, title, price, rating, url) and 'reports' (id, path, created_at). Seed safely from books.json (deleting old rows first so it is safe to run twice).
+2. Four Aggregations: Total books, average price, top 5 most expensive books, and count of books per rating.
+3. PDF Rendering: HTML template with summary KPI cards, top 5 table, rating distribution table, and full catalog table. Ensure table rows don't get sliced in half across page breaks and table headers repeat on every page. Output to reports/<id>.pdf.
+4. Endpoints:
+   - GET /health
+   - POST /reports: Runs pipeline, stores file path, returns 201 with { id, file: "/reports/:id/file" }.
+   - Idempotency: If a report was already generated today, return existing id & file link with status 200, unless { "force": true } is passed.
+   - GET /reports/:id: Returns metadata and link.
+   - GET /reports/:id/file: Serves the PDF file from disk.
+```
+
+### 2. Concrete Differences & Code Review
+
+1. **Table Header & Page Break Trapping**:
+   - **Me**: Used semantic `<thead>` tags and explicit CSS `thead { display: table-header-group; }` along with `tr { break-inside: avoid; page-break-inside: avoid; }`. Headless Chromium cleanly repeats the table headers on pages 2, 3, and 4.
+   - **AI**: Put table headers in standard `<tr><th>...</th></tr>` inside the `<tbody>` without `<thead>`. In Chromium print mode, headers only appeared on page 1, completely abandoning pages 2–4 without column labels.
+
+2. **Security & Input Sanitization (XSS)**:
+   - **Me**: Implemented an explicit `escapeHtml()` utility on book titles and dynamic database strings before interpolating into the HTML template.
+   - **AI**: Directly interpolated raw unescaped strings (`${b.title}`) into HTML. Any book containing HTML entities, quotes, or script tags would corrupt the DOM or introduce injection vulnerabilities.
+
+3. **Storage Abstraction & Relational Portability**:
+   - **Me**: Saved relative file paths (`reports/<id>.pdf`) into the database and resolved them dynamically via `path.resolve(__dirname, report.path)`, making the database portable across environments and containers. Also checked `fs.existsSync()` before returning a cached report on idempotency hit.
+   - **AI**: Stored hardcoded absolute system paths (e.g. `D:\...\reports\1.pdf`) in the database. If moved to Docker or another host, all file paths break. It also failed to verify if the file still existed on disk before returning a cached 200 response.
+
+4. **Modular Architecture vs. Monolith**:
+   - **Me**: Cleanly decoupled concerns into `db.js` (connection & migrations), `report.js` (pure SQL aggregation), `renderer.js` (template compilation & browser lifecycle), and `server.js` (HTTP transport & error handling).
+   - **AI**: Stuffed database connection, raw queries, HTML strings, Playwright browser handling, and route controllers into a single 110-line monolithic file.
+
