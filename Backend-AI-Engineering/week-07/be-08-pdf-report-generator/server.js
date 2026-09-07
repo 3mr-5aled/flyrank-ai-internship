@@ -19,7 +19,7 @@ app.get('/health', (req, res) => {
 app.get('/reports', (req, res) => {
   try {
     const db = getDb();
-    const reports = db.prepare('SELECT id, path, created_at FROM reports WHERE path != "" ORDER BY id DESC').all();
+    const reports = db.prepare("SELECT id, path, created_at FROM reports WHERE path != '' ORDER BY id DESC").all();
     const formatted = reports.map((r) => ({
       id: r.id,
       created_at: r.created_at,
