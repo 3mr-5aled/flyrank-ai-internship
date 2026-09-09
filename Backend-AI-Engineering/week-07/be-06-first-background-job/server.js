@@ -25,15 +25,31 @@ const sayHello = inngest.createFunction(
   }
 );
 
-// Stage 2: make-report function
+// Stage 2 & 3: make-report function with retries and failure simulation
 const makeReport = inngest.createFunction(
-  { id: "make-report", name: "make-report", triggers: [{ event: "report/requested" }] },
+  {
+    id: "make-report",
+    name: "make-report",
+    retries: 2,
+    triggers: [{ event: "report/requested" }],
+  },
   async ({ event, step }) => {
     const { id, topic } = event.data;
 
     await step.sleep("do-the-slow-work", "8s");
 
     const result = await step.run("build-report", async () => {
+      // Stage 3: intentional failure for topic "fail"
+      if (topic === "fail") {
+        const report = reports.get(id);
+        if (report) {
+          report.status = "failed";
+          report.error = "The report oven is broken!";
+          report.failedAt = new Date().toISOString();
+        }
+        throw new Error("The report oven is broken!");
+      }
+
       const generatedResult = `Comprehensive report for topic: ${topic}. Generated at ${new Date().toISOString()}`;
       const report = reports.get(id);
       if (report) {
@@ -62,9 +78,14 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-// Stage 2: Fast door - POST /reports
+// Stage 2 & 3: POST /reports with input validation
 app.post("/reports", async (req, res) => {
   const { topic } = req.body || {};
+
+  // Stage 3: Reject bad input at the door
+  if (!topic || typeof topic !== "string" || topic.trim() === "") {
+    return res.status(400).json({ error: "Topic is required" });
+  }
 
   const id = crypto.randomUUID();
   const report = {
