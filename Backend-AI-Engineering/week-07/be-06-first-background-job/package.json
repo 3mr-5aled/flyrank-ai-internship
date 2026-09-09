@@ -1,0 +1,17 @@
+{
+  "name": "be-06-first-background-job",
+  "version": "1.0.0",
+  "description": "FlyRank Internship - Your first background job with Express and Inngest",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "inngest": "^3.31.2"
+  }
+}
