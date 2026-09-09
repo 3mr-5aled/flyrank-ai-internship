@@ -1,5 +1,7 @@
 process.env.INNGEST_DEV = process.env.INNGEST_DEV || "1";
 
+const fs = require("fs");
+const path = require("path");
 const crypto = require("crypto");
 const express = require("express");
 const { Inngest } = require("inngest");
@@ -25,21 +27,28 @@ const sayHello = inngest.createFunction(
   }
 );
 
-// Stage 2 & 3: make-report function with retries and failure simulation
+// Stage 2 & 3 & Extras: make-report function with retries, failure simulation, idempotency, concurrency
 const makeReport = inngest.createFunction(
   {
     id: "make-report",
     name: "make-report",
     retries: 2,
+    concurrency: [{ limit: 2 }],
     triggers: [{ event: "report/requested" }],
   },
   async ({ event, step }) => {
     const { id, topic } = event.data;
 
+    // Stretch: Idempotency check - skip if already built
+    const existing = reports.get(id);
+    if (existing && existing.status === "done") {
+      return { id, status: "done", result: existing.result, note: "Already processed (idempotent)" };
+    }
+
     await step.sleep("do-the-slow-work", "8s");
 
     const result = await step.run("build-report", async () => {
-      // Stage 3: intentional failure for topic "fail"
+      // Stage 3: Intentional failure for topic "fail"
       if (topic === "fail") {
         const report = reports.get(id);
         if (report) {
@@ -57,6 +66,18 @@ const makeReport = inngest.createFunction(
         report.result = generatedResult;
         report.completedAt = new Date().toISOString();
       }
+
+      // Extras: write to outbox/<id>.txt (simulates email dispatch)
+      try {
+        const outboxDir = path.join(__dirname, "outbox");
+        if (!fs.existsSync(outboxDir)) {
+          fs.mkdirSync(outboxDir, { recursive: true });
+        }
+        fs.writeFileSync(path.join(outboxDir, `${id}.txt`), generatedResult, "utf8");
+      } catch (err) {
+        console.error("Failed writing to outbox:", err.message);
+      }
+
       return { id, status: "done", result: generatedResult };
     });
 
@@ -64,12 +85,34 @@ const makeReport = inngest.createFunction(
   }
 );
 
-// Serve Inngest handler
+// Stage 4: Heartbeat cron function (runs every minute)
+const heartbeat = inngest.createFunction(
+  { id: "heartbeat", name: "heartbeat", triggers: [{ cron: "* * * * *" }] },
+  async ({ step }) => {
+    return await step.run("summarize-reports", async () => {
+      let pending = 0;
+      let done = 0;
+      let failed = 0;
+
+      for (const report of reports.values()) {
+        if (report.status === "pending") pending++;
+        else if (report.status === "done") done++;
+        else if (report.status === "failed") failed++;
+      }
+
+      const summary = `[Heartbeat] Report Summary: ${pending} pending, ${done} done, ${failed} failed (Total: ${reports.size})`;
+      console.log(summary);
+      return { pending, done, failed, total: reports.size, summary };
+    });
+  }
+);
+
+// Serve Inngest handler with all 3 functions
 app.use(
   "/api/inngest",
   serve({
     client: inngest,
-    functions: [sayHello, makeReport],
+    functions: [sayHello, makeReport, heartbeat],
   })
 );
 
@@ -78,11 +121,16 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
+// Extras: Control panel - GET /reports
+app.get("/reports", (req, res) => {
+  res.status(200).json(Array.from(reports.values()));
+});
+
 // Stage 2 & 3: POST /reports with input validation
 app.post("/reports", async (req, res) => {
   const { topic } = req.body || {};
 
-  // Stage 3: Reject bad input at the door
+  // Reject bad input at the door
   if (!topic || typeof topic !== "string" || topic.trim() === "") {
     return res.status(400).json({ error: "Topic is required" });
   }
